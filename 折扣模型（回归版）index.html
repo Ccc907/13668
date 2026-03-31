@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>农产品物流充电折扣查询（回归模型）</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f9f0; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+        label { display: block; margin: 10px 0 5px; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #4CAF50; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
+        #result { margin-top: 20px; font-size: 24px; text-align: center; color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>充电折扣计算器（回归版）</h2>
+        <p>输入客户信息，获取建议折扣</p>
+        <form onsubmit="calculateDiscount(); return false;">
+            <label>消费金额（元）</label>
+            <input type="number" id="amount" step="0.01" required>
+
+            <label>会员注册时间（天）</label>
+            <input type="number" id="regDays" step="1" required>
+
+            <label>车型</label>
+            <select id="carType">
+                <option value="0">混动货车</option>
+                <option value="1">纯电货车</option>
+            </select>
+
+            <label>单次充电量（度）</label>
+            <input type="number" id="singleCharge" step="0.1" required>
+
+            <label>总充电量（度）</label>
+            <input type="number" id="totalCharge" step="0.1" required>
+
+            <button type="submit">查询折扣</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculateDiscount() {
+            // 获取输入值
+            let amount = parseFloat(document.getElementById('amount').value);
+            let regDays = parseFloat(document.getElementById('regDays').value);
+            let carType = parseFloat(document.getElementById('carType').value);
+            let singleCharge = parseFloat(document.getElementById('singleCharge').value);
+            let totalCharge = parseFloat(document.getElementById('totalCharge').value);
+
+            // 回归系数（根据你的Excel结果填入）
+            let intercept = 0.100386233;
+            let coef1 = -0.000005379911;   // 消费金额
+            let coef2 = -0.0000108101;      // 注册时间
+            let coef3 = 0.018964666;         // 车型
+            let coef4 = 0.0000771088;        // 单次充电量
+            let coef5 = 0.000000173196;       // 总充电量
+
+            // 计算折扣率
+            let discount = intercept 
+                         + coef1 * amount 
+                         + coef2 * regDays 
+                         + coef3 * carType 
+                         + coef4 * singleCharge 
+                         + coef5 * totalCharge;
+
+            // 限制在5%到30%之间
+            if (discount < 0.05) discount = 0.05;
+            if (discount > 0.30) discount = 0.30;
+
+            // 显示结果（转为百分比，保留两位小数）
+            document.getElementById('result').innerHTML = '建议折扣：' + (discount * 100).toFixed(2) + '%';
+        }
+    </script>
+</body>
+</html>
