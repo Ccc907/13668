@@ -1,904 +1,2799 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>XX充电 · 碳积分计划</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: #eef2f5;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 16px;
-        }
-        .app-container {
-            max-width: 500px;
-            width: 100%;
-            background: #fff;
-            border-radius: 36px;
-            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        .page {
-            display: none;
-        }
-        .page.active-page {
-            display: block;
-        }
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 18px 8px;
-            background: white;
-            border-bottom: 1px solid #eff3f0;
-        }
-        .back-btn {
-            font-size: 24px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            color: #2c5a3e;
-        }
-        .page-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a3a2a;
-        }
-        .logout-btn {
-            font-size: 14px;
-            color: #166534;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 30px;
-            background: #eef7f2;
-        }
-        .bottom-nav {
-            background: white;
-            border-top: 1px solid #eef2ef;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 16px 14px;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            color: #8aa194;
-            cursor: pointer;
-        }
-        .nav-item i {
-            font-size: 22px;
-        }
-        .nav-item.active {
-            color: #166534;
-            font-weight: 500;
-        }
-        .center-orange {
-            background: #f0a34b;
-            color: white;
-            width: 48px;
-            height: 48px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: -12px;
-            box-shadow: 0 4px 12px rgba(240,163,75,0.4);
-        }
-        /* 登录/注册页 */
-        .login-container {
-            padding: 40px 24px 30px;
-        }
-        .logo-area {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .logo-area h1 {
-            font-size: 32px;
-            color: #166534;
-        }
-        .tabs {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 28px;
-            border-bottom: 1px solid #e0ede6;
-        }
-        .tab-btn {
-            font-size: 18px;
-            font-weight: 600;
-            background: none;
-            border: none;
-            padding: 8px 0;
-            cursor: pointer;
-            color: #8aa194;
-        }
-        .tab-btn.active {
-            color: #166534;
-            border-bottom: 2px solid #166534;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 60px;
-            border: 1px solid #cde0d6;
-            font-size: 16px;
-            background: #fefefe;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 60px;
-            background: #166534;
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            margin-top: 12px;
-        }
-        /* 首页推送条 */
-        .join-banner {
-            background: #e8f5e9;
-            margin: 12px 16px 0 16px;
-            padding: 12px 16px;
-            border-radius: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .join-banner span {
-            font-size: 14px;
-            color: #1e5a2f;
-        }
-        .join-banner button {
-            background: #f0a34b;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        /* 充电站列表样式（无扫码按钮） */
-        .station-header {
-            padding: 18px 18px 8px;
-            background: white;
-        }
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-        .app-name {
-            font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #166534, #2c9e5a);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .search-bar {
-            background: #f3f6f5;
-            border-radius: 32px;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #8ba395;
-            margin: 10px 0 12px;
-        }
-        .filter-row {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 6px 0 12px;
-        }
-        .filter-chip {
-            background: #eff3f1;
-            padding: 6px 18px;
-            border-radius: 40px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #2c4b3b;
-        }
-        .station-list {
-            padding: 8px 16px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            max-height: 58vh;
-            overflow-y: auto;
-        }
-        .station-card {
-            background: white;
-            border-radius: 28px;
-            border: 1px solid #e6ede9;
-            padding: 16px;
-        }
-        .station-name {
-            font-weight: 700;
-            font-size: 18px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-        .distance {
-            font-size: 13px;
-            color: #8aa99a;
-        }
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 10px 0 12px;
-        }
-        .tag {
-            background: #eef5f0;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 11px;
-            color: #1f6e3f;
-        }
-        .price-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        .price-main {
-            font-size: 20px;
-            font-weight: 800;
-            color: #dc5f2e;
-        }
-        .vip-price {
-            font-size: 12px;
-            background: #eaf4ed;
-            padding: 3px 8px;
-            border-radius: 20px;
-        }
-        .stall-info {
-            display: flex;
-            gap: 20px;
-            font-size: 12px;
-            color: #5a7a68;
-            margin-bottom: 14px;
-        }
-        /* 会员中心 */
-        .member-card {
-            background: linear-gradient(135deg, #eef7f2, #e0f0e6);
-            margin: 20px;
-            border-radius: 32px;
-            padding: 24px;
-            text-align: center;
-        }
-        .avatar-large {
-            width: 80px;
-            height: 80px;
-            background: #166534;
-            border-radius: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            margin: 0 auto 12px;
-            color: white;
-        }
-        .stats-grid {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 16px;
-            background: #fafefb;
-            border-radius: 28px;
-            padding: 16px;
-        }
-        .stat-item {
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 26px;
-            font-weight: 800;
-            color: #166534;
-        }
-        .badge-list {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 8px 16px 20px;
-        }
-        .badge {
-            background: #fff3df;
-            border-radius: 60px;
-            padding: 8px 18px;
-            font-size: 13px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-        }
-        .btn-outline {
-            background: transparent;
-            border: 1.5px solid #166534;
-            color: #166534;
-            padding: 12px;
-            border-radius: 60px;
-            width: calc(100% - 32px);
-            margin: 0 16px 24px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        /* 碳积分详情 */
-        .carbon-detail {
-            padding: 0 16px 20px;
-        }
-        .points-card {
-            background: #eef7f2;
-            border-radius: 28px;
-            padding: 20px;
-            margin: 16px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .records-list {
-            max-height: 260px;
-            overflow-y: auto;
-            margin: 12px 0;
-        }
-        .record-item {
-            background: #f9fdfb;
-            border-radius: 20px;
-            padding: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            border-left: 4px solid #166534;
-        }
-        .action-selector {
-            display: flex;
-            gap: 12px;
-            margin: 16px 0;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        select {
-            flex: 2;
-            padding: 12px;
-            border-radius: 60px;
-            border: 1px solid #cde0d6;
-            background: white;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background: #166534;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 60px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .toast-message {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 60px;
-            z-index: 3000;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-        .placeholder-card {
-            text-align: center;
-            padding: 40px 20px;
-            color: #8aa194;
-        }
-        @media (max-width: 480px) {
-            .stat-value {
-                font-size: 22px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>绿充充 - 充电桩小程序</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #f5f7f5; color: #1a1a1a;
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :root {
+    --primary: #1a7a3c; --primary-dark: #14602e; --primary-light: #2fa855;
+    --primary-bg: #e8f5ec; --primary-bg-light: #f0faf2;
+    --accent: #4ddc8a;
+    --text-dark: #1a1a1a; --text-mid: #555; --text-light: #999; --text-hint: #bbb;
+    --bg-page: #f5f7f5; --bg-card: #ffffff;
+    --shadow-sm: 0 2px 12px rgba(26,122,60,0.08);
+    --shadow-md: 0 4px 20px rgba(26,122,60,0.12);
+    --radius-sm: 12px; --radius-md: 16px; --radius-lg: 24px;
+    --tab-height: 64px;
+  }
+
+  .app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 430px;
+    margin: 0 auto;
+    background: var(--bg-page);
+    position: relative;
+  }
+
+  /* 绿色顶栏 */
+  .mp-topbar {
+    width: 100%;
+    height: 30px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1001;
+  }
+
+  /* 页面容器 */
+  .page {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .page.active {
+    display: flex;
+    flex-direction: column;
+  }
+  .page-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(var(--tab-height) + 12px);
+  }
+  .page-scroll::-webkit-scrollbar { display: none; }
+
+  /* 底部导航栏 */
+  .tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    height: var(--tab-height);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(26,122,60,0.08);
+    border-top: 1px solid #e5eee5;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .tab-item:active { transform: scale(0.92); }
+  .tab-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+  .tab-icon svg { width: 24px; height: 24px; fill: #c0d4c4; transition: all 0.3s ease; }
+  .tab-item.active .tab-icon svg { fill: var(--primary); }
+  .tab-label { font-size: 10px; font-weight: 500; color: #aaa; transition: all 0.3s ease; }
+  .tab-item.active .tab-label { color: var(--primary); font-weight: 600; }
+
+  /* ==================== 登录页 ==================== */
+  .login-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #e8f5ec 0%, #fff 50%, #f5f7f5 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    z-index: 2000;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  .login-page.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .login-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 32px rgba(26,122,60,0.25);
+  }
+  .login-logo svg { width: 48px; height: 48px; fill: #fff; }
+  .login-title { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+  .login-subtitle { font-size: 14px; color: var(--text-mid); margin-bottom: 40px; }
+  .login-form {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .login-input-group {
+    position: relative;
+  }
+  .login-input {
+    width: 100%;
+    height: 52px;
+    background: #fff;
+    border: 1.5px solid #e0e8e0;
+    border-radius: 12px;
+    padding: 0 16px 0 44px;
+    font-size: 15px;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .login-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26,122,60,0.1);
+  }
+  .login-input::placeholder { color: var(--text-hint); }
+  .login-input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    fill: var(--text-light);
+  }
+  .login-input-icon.show-pwd {
+    right: 14px;
+    left: auto;
+    cursor: pointer;
+    fill: var(--text-mid);
+  }
+  .login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+    margin-bottom: 8px;
+  }
+  .login-remember { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-mid); cursor: pointer; }
+  .login-remember input { width: 16px; height: 16px; accent-color: var(--primary); }
+  .login-forgot { font-size: 13px; color: var(--primary); cursor: pointer; }
+  .login-btn {
+    width: 100%;
+    height: 52px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(26,122,60,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .login-btn:active { transform: scale(0.98); }
+  .login-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+  .login-divider {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+    width: 100%;
+    max-width: 320px;
+  }
+  .login-divider-line { flex: 1; height: 1px; background: #e0e8e0; }
+  .login-divider-text { padding: 0 16px; font-size: 12px; color: var(--text-light); }
+  .login-other {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+  .login-other-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .login-other-icon {
+    width: 48px;
+    height: 48px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+  }
+  .login-other-item:active .login-other-icon { transform: scale(0.95); }
+  .login-other-icon svg { width: 28px; height: 28px; }
+  .login-other-icon.wechat svg { fill: #07c160; }
+  .login-other-icon.phone svg { fill: var(--primary); }
+  .login-other-label { font-size: 12px; color: var(--text-mid); }
+  .login-register { font-size: 13px; color: var(--text-mid); }
+  .login-register span { color: var(--primary); font-weight: 500; cursor: pointer; }
+
+  /* ==================== 新用户欢迎引导页 ==================== */
+  .welcome-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #e8f5ec 0%, #fff 40%, #f0fdf4 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    z-index: 2100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  .welcome-page.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .welcome-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .welcome-close svg { width: 18px; height: 18px; fill: var(--text-mid); }
+  .welcome-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 40px rgba(26,122,60,0.3);
+    animation: welcomeIconPulse 2s ease-in-out infinite;
+  }
+  @keyframes welcomeIconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .welcome-icon svg { width: 56px; height: 56px; fill: #fff; }
+  .welcome-title { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+  .welcome-subtitle { font-size: 14px; color: var(--text-mid); margin-bottom: 32px; text-align: center; }
+  
+  /* 新人大礼包 */
+  .welcome-gift {
+    background: linear-gradient(135deg, #fff 0%, #f0fdf4 100%);
+    border: 2px solid var(--primary-bg);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(26,122,60,0.15);
+  }
+  .gift-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .gift-header svg { width: 24px; height: 24px; fill: var(--accent); }
+  .gift-title { font-size: 16px; font-weight: 700; color: #d97706; }
+  .gift-list { display: flex; flex-direction: column; gap: 12px; }
+  .gift-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .gift-item-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-bg);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .gift-item-icon svg { width: 22px; height: 22px; fill: var(--primary); }
+  .gift-item-info { flex: 1; }
+  .gift-item-name { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+  .gift-item-desc { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+  .gift-item-value { font-size: 18px; font-weight: 700; color: #ef4444; }
+  
+  /* 功能引导 */
+  .welcome-features {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .welcome-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .welcome-feature-icon {
+    width: 48px;
+    height: 48px;
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .welcome-feature-icon svg { width: 26px; height: 26px; fill: var(--primary); }
+  .welcome-feature-label { font-size: 11px; color: var(--text-mid); }
+  
+  .welcome-btn {
+    width: 100%;
+    max-width: 280px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(26,122,60,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .welcome-btn:active { transform: scale(0.98); }
+  
+  /* 老用户欢迎回来提示 */
+  .welcome-back {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    z-index: 2100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  .welcome-back.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* ==================== 首页 ==================== */
+  .home-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    padding: 16px 16px 24px;
+    color: #fff;
+    position: relative;
+  }
+  .home-header::after {
+    content: '';
+    position: absolute;
+    bottom: -16px;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: var(--bg-page);
+    border-radius: 24px 24px 0 0;
+  }
+  .home-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .home-title { font-size: 18px; font-weight: 700; }
+  .home-top-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .home-notify { width: 22px; height: 22px; fill: rgba(255,255,255,0.9); cursor: pointer; }
+  .home-logout {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .home-logout:active { background: rgba(255,255,255,0.25); transform: scale(0.95); }
+  .home-logout svg { width: 18px; height: 18px; fill: rgba(255,255,255,0.9); }
+
+  /* Banner轮播 */
+  .banner-section {
+    margin: 0 16px 16px;
+    position: relative;
+    z-index: 10;
+  }
+  .banner-card {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    color: #fff;
+    box-shadow: var(--shadow-md);
+  }
+  .banner-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .banner-desc { font-size: 12px; opacity: 0.9; margin-bottom: 12px; }
+  .banner-btn {
+    display: inline-block;
+    background: #fff;
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .banner-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .banner-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+  }
+  .banner-dot.active { background: #fff; width: 16px; border-radius: 3px; }
+
+  /* 功能入口 */
+  .func-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 0 16px 16px;
+    position: relative;
+    z-index: 5;
+  }
+  .func-item {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 16px 8px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .func-item:active { transform: scale(0.96); }
+  .func-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 8px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .func-icon svg { width: 24px; height: 24px; }
+  .func-icon.green { background: var(--primary-bg); }
+  .func-icon.green svg { fill: var(--primary); }
+  .func-icon.blue { background: #e6f7ff; }
+  .func-icon.blue svg { fill: #1890ff; }
+  .func-icon.orange { background: #fff7e6; }
+  .func-icon.orange svg { fill: #faad14; }
+  .func-icon.purple { background: #f9f0ff; }
+  .func-icon.purple svg { fill: #722ed1; }
+  .func-name { font-size: 12px; color: var(--text-dark); font-weight: 500; }
+
+  /* 充电站列表 */
+  .station-section {
+    background: #fff;
+    margin: 0 16px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f5f0;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title svg { width: 16px; height: 16px; fill: var(--primary); }
+  .section-more {
+    font-size: 12px;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .section-more svg { width: 14px; height: 14px; fill: var(--text-light); }
+  .station-list { padding: 8px 0; }
+  .station-item {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .station-item:active { background: var(--primary-bg-light); }
+  .station-item:not(:last-child) { border-bottom: 1px solid #f5f9f5; }
+  .station-left {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-bg);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .station-left svg { width: 24px; height: 24px; fill: var(--primary); }
+  .station-center { flex: 1; }
+  .station-name { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 4px; }
+  .station-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-light); }
+  .station-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .station-tag.fast { background: var(--primary-bg); color: var(--primary); }
+  .station-tag.slow { background: #fff7e6; color: #faad14; }
+  .station-right { text-align: right; }
+  .station-price { font-size: 16px; font-weight: 700; color: var(--primary); }
+  .station-price span { font-size: 11px; font-weight: 400; color: var(--text-light); }
+  .station-status { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+  /* ==================== 商城页 ==================== */
+  .shop-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    padding: 16px;
+    position: relative;
+  }
+  .shop-header::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 0;
+    right: 0;
+    height: 24px;
+    background: var(--bg-page);
+    border-radius: 20px 20px 0 0;
+  }
+  .shop-search {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+  }
+  .shop-search svg { width: 18px; height: 18px; fill: #999; }
+  .shop-search input { flex: 1; border: none; outline: none; font-size: 14px; background: transparent; }
+  .shop-search input::placeholder { color: #bbb; }
+
+  /* 积分悬浮卡 */
+  .points-float {
+    position: relative;
+    z-index: 10;
+    margin: 0 16px 16px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-md);
+  }
+  .points-float-left { display: flex; align-items: center; gap: 10px; }
+  .points-float-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .points-float-icon svg { width: 22px; height: 22px; fill: #fff; }
+  .points-float-text { font-size: 12px; color: var(--text-mid); }
+  .points-float-num { font-size: 20px; font-weight: 800; color: var(--text-dark); margin-top: 2px; }
+
+  /* 优惠券列表 */
+  .voucher-list { padding: 0 16px; }
+  .voucher-card {
+    background: #fff;
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .voucher-card-top {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #fff;
+  }
+  .voucher-value {
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .voucher-value span { font-size: 14px; font-weight: 500; }
+  .voucher-info { flex: 1; }
+  .voucher-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .voucher-desc { font-size: 11px; opacity: 0.85; }
+  .voucher-card-bottom {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .voucher-meta { font-size: 11px; color: var(--text-light); }
+  .voucher-cost {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .voucher-cost svg { width: 16px; height: 16px; fill: var(--primary); }
+  .voucher-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .voucher-btn:active { transform: scale(0.95); }
+  .voucher-btn.disabled { background: #ccc; cursor: not-allowed; }
+
+  .shop-footer-tip {
+    text-align: center;
+    padding: 20px 16px;
+    font-size: 11px;
+    color: var(--text-hint);
+  }
+
+  /* ==================== 碳积分页 ==================== */
+  /* 顶部导航栏 */
+  .carbon-nav {
+    background: #fff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1px solid #f0f5f0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .carbon-nav-back {
+    position: absolute;
+    left: 12px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  .carbon-nav-back:active { background: var(--primary-bg); }
+  .carbon-nav-back svg { width: 20px; height: 20px; fill: var(--text-dark); }
+  .carbon-nav-title { font-size: 16px; font-weight: 600; color: var(--text-dark); }
+
+  /* 核心数据卡片 */
+  .carbon-hero {
+    background: linear-gradient(135deg, var(--primary-bg) 0%, #d4f0dc 100%);
+    border-radius: var(--radius-lg);
+    margin: 16px;
+    padding: 28px 20px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+  }
+  .hero-points-label { font-size: 13px; color: var(--text-mid); margin-bottom: 8px; }
+  .hero-points-num {
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--primary);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .hero-points-trend {
+    font-size: 12px;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+  .hero-points-trend svg { width: 14px; height: 14px; fill: var(--primary); }
+  .hero-points-trend span { color: var(--primary); font-weight: 600; }
+  .hero-stats {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 16px;
+    border-top: 1px solid rgba(26,122,60,0.15);
+  }
+  .hero-stat { text-align: center; flex: 1; }
+  .hero-stat-value { font-size: 20px; font-weight: 700; color: var(--text-dark); }
+  .hero-stat-label { font-size: 11px; color: var(--text-mid); margin-top: 4px; }
+
+  /* 趋势图表区域 */
+  .chart-section {
+    margin: 0 16px 16px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .chart-title { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+  .chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-mid);
+  }
+  .chart-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .chart-legend-dot.green { background: var(--primary); }
+  .chart-legend-dot.blue { background: #1890ff; }
+  .chart-container {
+    width: 100%;
+    height: 140px;
+    position: relative;
+  }
+  .chart-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* 快捷任务区 */
+  .mission-bar {
+    margin: 0 16px 16px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .mission-select {
+    flex: 1;
+    height: 42px;
+    border: 1px solid #e0e8e0;
+    border-radius: 10px;
+    padding: 0 12px;
+    font-size: 13px;
+    color: var(--text-dark);
+    background: #fafdfa;
+    outline: none;
+    cursor: pointer;
+  }
+  .go-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .go-btn:active { transform: scale(0.96); }
+  .go-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+  /* 积分规则 */
+  .rules-section {
+    margin: 0 16px 12px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .rules-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f5f0;
+    cursor: pointer;
+    user-select: none;
+  }
+  .rules-title { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+  .rules-toggle { font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+  .rules-toggle svg { width: 16px; height: 16px; fill: var(--text-light); transition: transform 0.3s; }
+  .rules-header.collapsed .rules-toggle svg { transform: rotate(-90deg); }
+  .rules-body { max-height: 800px; overflow: hidden; transition: max-height 0.3s ease; }
+  .rules-body.collapsed { max-height: 0; }
+  .rules-group { padding: 12px 16px; }
+  .rules-group-title {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rules-group-title.positive { background: var(--primary-bg); color: var(--primary); }
+  .rules-group-title.negative { background: #fff2f0; color: #ff4d4f; }
+  .rules-group-title svg { width: 14px; height: 14px; fill: currentColor; }
+  .rule-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f9f5;
+  }
+  .rule-item:last-child { border-bottom: none; }
+  .rule-text { flex: 1; font-size: 13px; color: var(--text-mid); }
+  .rule-pts { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+  .rule-pts.positive { background: var(--primary-bg); color: var(--primary); }
+  .rule-pts.negative { background: #fff2f0; color: #ff4d4f; }
+
+  /* 积分明细 */
+  .detail-section {
+    margin: 0 16px 16px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .detail-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f5f0;
+  }
+  .detail-title { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+  .detail-more { font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 2px; cursor: pointer; }
+  .detail-more svg { width: 14px; height: 14px; fill: var(--text-light); }
+  .detail-list {
+    max-height: 280px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .detail-list::-webkit-scrollbar { width: 3px; }
+  .detail-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+  .detail-item {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .detail-item:not(:last-child) { border-bottom: 1px solid #f5f9f5; }
+  .detail-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .detail-icon svg { width: 18px; height: 18px; }
+  .detail-icon.plus { background: var(--primary-bg); }
+  .detail-icon.plus svg { fill: var(--primary); }
+  .detail-icon.minus { background: #fff2f0; }
+  .detail-icon.minus svg { fill: #ff4d4f; }
+  .detail-info { flex: 1; min-width: 0; }
+  .detail-name { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .detail-time { font-size: 12px; color: var(--text-light); }
+  .detail-pts { font-size: 16px; font-weight: 700; flex-shrink: 0; }
+  .detail-pts.plus { color: var(--primary); }
+  .detail-pts.minus { color: #ff4d4f; }
+
+  /* ==================== 我的页 ==================== */
+  .profile-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    padding: 24px 16px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+  }
+  .profile-header::after {
+    content: '';
+    position: absolute;
+    bottom: -16px;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: var(--bg-page);
+    border-radius: 24px 24px 0 0;
+  }
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255,255,255,0.3);
+    position: relative;
+    z-index: 1;
+  }
+  .profile-avatar svg { width: 32px; height: 32px; fill: #fff; }
+  .profile-info { position: relative; z-index: 1; }
+  .profile-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .profile-phone { font-size: 13px; opacity: 0.8; }
+
+  /* 资产卡片 */
+  .assets-card {
+    margin: -8px 16px 16px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    justify-content: space-around;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 10;
+  }
+  .asset-item { text-align: center; cursor: pointer; }
+  .asset-value { font-size: 24px; font-weight: 700; color: var(--text-dark); }
+  .asset-label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+  /* 功能列表 */
+  .func-section {
+    margin: 0 16px 12px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .func-list-item {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .func-list-item:active { background: var(--primary-bg-light); }
+  .func-list-item:not(:last-child) { border-bottom: 1px solid #f5f9f5; }
+  .func-list-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .func-list-icon svg { width: 20px; height: 20px; }
+  .func-list-icon.green { background: var(--primary-bg); }
+  .func-list-icon.green svg { fill: var(--primary); }
+  .func-list-icon.blue { background: #e6f7ff; }
+  .func-list-icon.blue svg { fill: #1890ff; }
+  .func-list-icon.orange { background: #fff7e6; }
+  .func-list-icon.orange svg { fill: #faad14; }
+  .func-list-text { flex: 1; font-size: 14px; color: var(--text-dark); }
+  .func-list-arrow svg { width: 16px; height: 16px; fill: #ccc; }
+
+  /* 优惠券 */
+  .my-coupons-section {
+    margin: 0 16px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .coupon-item {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .coupon-item:active { background: var(--primary-bg-light); }
+  .coupon-item:not(:last-child) { border-bottom: 1px solid #f5f9f5; }
+  .coupon-left {
+    width: 60px;
+    text-align: center;
+    border-right: 1px dashed #e0e8e0;
+    padding-right: 12px;
+  }
+  .coupon-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+  .coupon-value span { font-size: 12px; }
+  .coupon-info { flex: 1; }
+  .coupon-name { font-size: 13px; font-weight: 500; color: var(--text-dark); margin-bottom: 2px; }
+  .coupon-expire { font-size: 11px; color: var(--text-light); }
+
+  /* 弹窗 */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    width: 85%;
+    max-width: 320px;
+    padding: 24px;
+    text-align: center;
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .modal-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    background: var(--primary-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-icon svg { width: 32px; height: 32px; fill: var(--primary); }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+  .modal-subtitle { font-size: 13px; color: var(--text-mid); margin-bottom: 8px; }
+  .modal-code {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    letter-spacing: 2px;
+    margin: 16px 0;
+    padding: 12px;
+    background: var(--primary-bg-light);
+    border-radius: var(--radius-sm);
+  }
+  .modal-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+  }
+  .modal-btn:active { transform: scale(0.96); }
+
+  /* ==================== 碳积分计划邀请弹窗 ==================== */
+  .carbon-plan-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2200;
+    padding: 24px;
+  }
+  .carbon-plan-overlay.show { display: flex; }
+  .carbon-plan-modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 320px;
+    padding: 0;
+    overflow: hidden;
+    animation: modalIn 0.3s ease;
+  }
+  .carbon-plan-banner {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, #43c97a 100%);
+    padding: 32px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .carbon-plan-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .carbon-plan-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: -20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .carbon-plan-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    position: relative;
+    z-index: 1;
+  }
+  .carbon-plan-icon svg { width: 40px; height: 40px; fill: #fff; }
+  .carbon-plan-banner-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .carbon-plan-banner-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    position: relative;
+    z-index: 1;
+  }
+  .carbon-plan-body {
+    padding: 20px 24px 24px;
+  }
+  .carbon-plan-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .carbon-plan-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--primary-bg-light);
+    border-radius: 10px;
+  }
+  .carbon-plan-feature-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-bg);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .carbon-plan-feature-icon svg { width: 18px; height: 18px; fill: var(--primary); }
+  .carbon-plan-feature-text {
+    font-size: 13px;
+    color: var(--text-dark);
+    line-height: 1.4;
+  }
+  .carbon-plan-feature-text strong { font-weight: 600; color: var(--primary); }
+  .carbon-plan-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .carbon-plan-join {
+    width: 100%;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(26,122,60,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .carbon-plan-join:active { transform: scale(0.97); }
+  .carbon-plan-skip {
+    width: 100%;
+    height: 44px;
+    background: transparent;
+    border: 1.5px solid #e0e8e0;
+    border-radius: 22px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .carbon-plan-skip:active { background: #f5f5f5; transform: scale(0.97); }
+
+  /* 碳积分计划已加入提示 */
+  .carbon-plan-joined-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 32px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    z-index: 2300;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .carbon-plan-joined-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .carbon-plan-joined-toast svg {
+    width: 48px;
+    height: 48px;
+    fill: var(--primary);
+    margin-bottom: 12px;
+  }
+  .carbon-plan-joined-toast .toast-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+  .carbon-plan-joined-toast .toast-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+  }
+
+  /* ==================== 未加入碳积分计划 - 页面遮挡层 ==================== */
+  .no-plan-block {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-page);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 32px 24px;
+  }
+  .no-plan-block.show {
+    display: flex;
+  }
+  .no-plan-block-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #e0e8e0 0%, #f0f5f0 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .no-plan-block-icon svg { width: 44px; height: 44px; fill: #bbb; }
+  .no-plan-block-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .no-plan-block-desc {
+    font-size: 13px;
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .no-plan-block-btn {
+    width: 100%;
+    max-width: 220px;
+    height: 46px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border: none;
+    border-radius: 23px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(26,122,60,0.3);
+    transition: transform 0.2s;
+  }
+  .no-plan-block-btn:active { transform: scale(0.97); }
+
+  /* 动画 */
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
 </head>
 <body>
-<div class="app-container" id="app">
-    <!-- 登录/注册页 -->
-    <div id="loginPage" class="page active-page">
-        <div class="login-container">
-            <div class="logo-area">
-                <h1>🌿 XX充电</h1>
-                <p style="color: #5e7e6e;">低碳出行 · 积分有礼</p>
-            </div>
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="login">登录</button>
-                <button class="tab-btn" data-tab="register">注册</button>
-            </div>
-            <!-- 登录表单 -->
-            <div id="loginForm">
-                <div class="form-group"><input type="tel" id="loginPhone" placeholder="手机号 (老用户: 13812345678)" value=""></div>
-                <div class="form-group"><input type="text" id="loginCode" placeholder="验证码 (任意6位数字)" value=""></div>
-                <button class="login-btn" id="doLoginBtn">登录</button>
-            </div>
-            <!-- 注册表单（初始隐藏） -->
-            <div id="registerForm" style="display:none;">
-                <div class="form-group"><input type="text" id="regNickname" placeholder="昵称" value=""></div>
-                <div class="form-group"><input type="tel" id="regPhone" placeholder="手机号" value=""></div>
-                <div class="form-group"><input type="text" id="regCode" placeholder="验证码 (任意6位数字)" value=""></div>
-                <button class="login-btn" id="doRegisterBtn">注册并登录</button>
-            </div>
-        </div>
+<!-- ==================== 登录页 ==================== -->
+<div class="login-page" id="login-page">
+  <div class="login-logo">
+    <svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>
+  </div>
+  <div class="login-title">绿充充</div>
+  <div class="login-subtitle">绿色出行，充换未来</div>
+  
+  <div class="login-form">
+    <div class="login-input-group">
+      <svg class="login-input-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <input type="text" class="login-input" id="login-phone" placeholder="请输入手机号">
     </div>
+    <div class="login-input-group">
+      <svg class="login-input-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+      <input type="password" class="login-input" id="login-pwd" placeholder="请输入密码">
+      <svg class="login-input-icon show-pwd" viewBox="0 0 24 24" onclick="togglePwd()"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+    </div>
+    
+    <div class="login-options">
+      <label class="login-remember"><input type="checkbox" id="remember-me"> 记住我</label>
+      <span class="login-forgot">忘记密码？</span>
+    </div>
+    
+    <button class="login-btn" onclick="doLogin()">登 录</button>
+  </div>
+  
+  <div class="login-divider">
+    <div class="login-divider-line"></div>
+    <div class="login-divider-text">其他登录方式</div>
+    <div class="login-divider-line"></div>
+  </div>
+  
+  <div class="login-other">
+    <div class="login-other-item" onclick="loginWithWechat()">
+      <div class="login-other-icon wechat">
+        <svg viewBox="0 0 24 24"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.269-.03-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg>
+      </div>
+      <div class="login-other-label">微信登录</div>
+    </div>
+    <div class="login-other-item" onclick="loginWithPhone()">
+      <div class="login-other-icon phone">
+        <svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+      </div>
+      <div class="login-other-label">验证码登录</div>
+    </div>
+  </div>
+  
+  <div class="login-register">还没有账号？<span onclick="goRegister()">立即注册</span></div>
+</div>
 
-    <!-- 首页（充电站列表，无扫码按钮） -->
-    <div id="homePage" class="page">
-        <div class="page-header">
-            <div class="app-name" style="font-size:22px;">XX充电</div>
-            <button class="logout-btn" id="logoutBtnHome">退出登录</button>
-        </div>
-        <div class="search-bar"><i class="fas fa-search"></i> 搜索站点或地址 <i class="fas fa-sliders-h" style="margin-left: auto;"></i></div>
-        <!-- 加入计划推送条（动态显示） -->
-        <div id="joinBanner" class="join-banner" style="display:none;">
-            <span><i class="fas fa-leaf"></i> 加入碳积分体验计划，首次送10积分！</span>
-            <button id="joinPlanBtn">立即加入</button>
-        </div>
-        <div class="filter-row">
-            <span class="filter-chip active">全部公桩</span>
-            <span class="filter-chip">满5减3</span>
-            <span class="filter-chip">星级站</span>
-            <span class="filter-chip">V1会员价</span>
-            <span class="filter-chip">免费停车</span>
-        </div>
-        <div class="station-list" id="stationList">
-            <!-- 站点卡片，无扫码按钮 -->
-            <div class="station-card">
-                <div class="station-name"><span>A站 · 江南大道站 <i class="fas fa-bolt"></i></span><span class="distance">2.1km</span></div>
-                <div class="tags"><span class="tag">限时免费</span><span class="tag">慢充+快充</span></div>
-                <div class="price-row"><div><span class="price-main">¥1.06</span><small>/度</small> <span class="vip-price">V1 ¥0.98</span></div><div><i class="fas fa-ticket-alt"></i> 满5减3</div></div>
-                <div class="stall-info"><span><i class="fas fa-charging-station"></i> 慢充闲0/10</span><span><i class="fas fa-bolt"></i> 快充闲32/36</span></div>
-            </div>
-            <div class="station-card">
-                <div class="station-name"><span>B站 · 常泰路世腾站</span><span class="distance">2.9km</span></div>
-                <div class="tags"><span class="tag">停车免费</span><span class="tag">仅快充</span></div>
-                <div class="price-row"><div><span class="price-main">¥1.34</span><small>/度</small> <span class="vip-price">V1 ¥1.32</span></div></div>
-                <div class="stall-info"><span><i class="fas fa-bolt"></i> 快充闲7/20</span></div>
-            </div>
-            <div class="station-card">
-                <div class="station-name"><span>C站 · 峰亿轻纺站</span><span class="distance">3.8km</span></div>
-                <div class="tags"><span class="tag">停车免费</span><span class="tag">仅快充</span></div>
-                <div class="price-row"><div><span class="price-main">¥1.45</span><small>/度</small> <span class="vip-price">V1 ¥1.44</span></div></div>
-                <div class="stall-info"><span><i class="fas fa-bolt"></i> 快充闲4/4 (满桩)</span></div>
-            </div>
-            <div class="station-card">
-                <div class="station-name"><span>D站 · 鸿蒙智行中心</span><span class="distance">4.1km</span></div>
-                <div class="tags"><span class="tag">停车免费</span><span class="tag">仅快充</span></div>
-                <div class="price-row"><div><span class="price-main">¥1.14</span><small>/度</small> <span class="vip-price">V1 ¥1.13</span></div></div>
-                <div class="stall-info"><span><i class="fas fa-bolt"></i> 快充闲9/12</span></div>
-            </div>
-        </div>
-        <div class="bottom-nav">
-            <div class="nav-item" data-nav="home"><i class="fas fa-charging-station"></i><span>首页</span></div>
-            <div class="nav-item" data-nav="save"><i class="fas fa-wallet"></i><span>省钱</span></div>
-            <div class="nav-item" data-nav="scan"><div class="center-orange"><i class="fas fa-qrcode"></i></div><span>扫码</span></div>
-            <div class="nav-item" data-nav="member"><i class="fas fa-user-friends"></i><span>会员</span></div>
-            <div class="nav-item" data-nav="carbon"><i class="fas fa-leaf"></i><span>碳积分</span></div>
-        </div>
+<!-- ==================== 注册页 ==================== -->
+<div class="login-page hidden" id="register-page">
+  <div class="login-logo">
+    <svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>
+  </div>
+  <div class="login-title">绿充充</div>
+  <div class="login-subtitle">注册新账号</div>
+  
+  <div class="login-form">
+    <div class="login-input-group">
+      <svg class="login-input-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <input type="text" class="login-input" id="register-phone" placeholder="请输入手机号">
     </div>
+    <div class="login-input-group">
+      <svg class="login-input-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+      <input type="password" class="login-input" id="register-pwd" placeholder="请设置密码（6-20位）">
+    </div>
+    <div class="login-input-group">
+      <svg class="login-input-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+      <input type="password" class="login-input" id="register-pwd2" placeholder="请再次输入密码">
+    </div>
+    
+    <button class="login-btn" onclick="doRegister()">注 册</button>
+  </div>
+  
+  <div class="login-register">已有账号？<span onclick="backToLogin()">立即登录</span></div>
+</div>
 
-    <!-- 会员中心 -->
-    <div id="memberPage" class="page">
-        <div class="page-header"><button class="back-btn" id="memberBackBtn"><i class="fas fa-arrow-left"></i></button><div class="page-title">会员中心</div></div>
-        <div id="memberContent"></div>
-        <div class="bottom-nav">
-            <div class="nav-item" data-nav="home"><i class="fas fa-charging-station"></i><span>首页</span></div>
-            <div class="nav-item" data-nav="save"><i class="fas fa-wallet"></i><span>省钱</span></div>
-            <div class="nav-item" data-nav="scan"><div class="center-orange"><i class="fas fa-qrcode"></i></div><span>扫码</span></div>
-            <div class="nav-item" data-nav="member"><i class="fas fa-user-friends"></i><span>会员</span></div>
-            <div class="nav-item" data-nav="carbon"><i class="fas fa-leaf"></i><span>碳积分</span></div>
-        </div>
+<!-- ==================== 新用户欢迎引导页 ==================== -->
+<div class="welcome-page" id="welcome-page">
+  <div class="welcome-close" onclick="closeWelcome()">
+    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </div>
+  
+  <div class="welcome-icon">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+  </div>
+  <div class="welcome-title">恭喜您，注册成功！</div>
+  <div class="welcome-subtitle">新用户专享大礼包已送达</div>
+  
+  <div class="welcome-gift">
+    <div class="gift-header">
+      <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
+      <div class="gift-title">新人礼包</div>
     </div>
+    <div class="gift-list">
+      <div class="gift-item">
+        <div class="gift-item-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+        <div class="gift-item-info">
+          <div class="gift-item-name">首单立减券</div>
+          <div class="gift-item-desc">首次充电满50元可用</div>
+        </div>
+        <div class="gift-item-value">¥10</div>
+      </div>
+      <div class="gift-item">
+        <div class="gift-item-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+        <div class="gift-item-info">
+          <div class="gift-item-name">碳积分赠送</div>
+          <div class="gift-item-desc">绿色出行启动金</div>
+        </div>
+        <div class="gift-item-value">+200</div>
+      </div>
+      <div class="gift-item">
+        <div class="gift-item-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 6h-4v2h4v2h-4v2h4v2H9V7h6v2z"/></svg></div>
+        <div class="gift-item-info">
+          <div class="gift-item-name">服务费折扣券</div>
+          <div class="gift-item-desc">服务费8折优惠</div>
+        </div>
+        <div class="gift-item-value">8折</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="welcome-features">
+    <div class="welcome-feature">
+      <div class="welcome-feature-icon"><svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg></div>
+      <div class="welcome-feature-label">扫码充电</div>
+    </div>
+    <div class="welcome-feature">
+      <div class="welcome-feature-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div>
+      <div class="welcome-feature-label">附近找桩</div>
+    </div>
+    <div class="welcome-feature">
+      <div class="welcome-feature-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-7.41 7.41 1.42 1.42 7.41-7.41L22 12V6z"/><path d="M2.75 7.17l4.17 4.17-1.42 1.41-4.17-4.17z"/></svg></div>
+      <div class="welcome-feature-label">积分兑换</div>
+    </div>
+  </div>
+  
+  <button class="welcome-btn" onclick="startUsing()">立即开始使用</button>
+</div>
 
-    <!-- 碳积分详情页 -->
-    <div id="carbonPage" class="page">
-        <div class="page-header"><button class="back-btn" id="carbonBackBtn"><i class="fas fa-arrow-left"></i></button><div class="page-title">碳积分详情</div></div>
-        <div id="carbonContent"></div>
-        <div class="bottom-nav">
-            <div class="nav-item" data-nav="home"><i class="fas fa-charging-station"></i><span>首页</span></div>
-            <div class="nav-item" data-nav="save"><i class="fas fa-wallet"></i><span>省钱</span></div>
-            <div class="nav-item" data-nav="scan"><div class="center-orange"><i class="fas fa-qrcode"></i></div><span>扫码</span></div>
-            <div class="nav-item" data-nav="member"><i class="fas fa-user-friends"></i><span>会员</span></div>
-            <div class="nav-item" data-nav="carbon"><i class="fas fa-leaf"></i><span>碳积分</span></div>
+<!-- 老用户欢迎回来提示 -->
+<div class="welcome-back" id="welcome-back">欢迎回来</div>
+
+<div class="app">
+  <div class="mp-topbar"></div>
+
+  <!-- ==================== 首页 ==================== -->
+  <div class="page active" id="page-home">
+    <div class="page-scroll">
+      <div class="home-header">
+        <div class="home-top">
+          <div class="home-title">绿充充</div>
+          <div class="home-top-right">
+            <svg class="home-notify" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            <div class="home-logout" onclick="logout()" title="退出登录">
+              <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Banner -->
+      <div class="banner-section">
+        <div class="banner-card">
+          <div class="banner-title">新用户专享</div>
+          <div class="banner-desc">首单充电满50减10元</div>
+          <div class="banner-btn">立即领取</div>
+        </div>
+        <div class="banner-dots">
+          <div class="banner-dot active"></div>
+          <div class="banner-dot"></div>
+          <div class="banner-dot"></div>
+        </div>
+      </div>
+
+      <!-- 功能入口 -->
+      <div class="func-grid">
+        <div class="func-item">
+          <div class="func-icon green"><svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg></div>
+          <div class="func-name">扫码充电</div>
+        </div>
+        <div class="func-item">
+          <div class="func-icon blue"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div>
+          <div class="func-name">找桩导航</div>
+        </div>
+        <div class="func-item">
+          <div class="func-icon orange"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+          <div class="func-name">预约充电</div>
+        </div>
+        <div class="func-item">
+          <div class="func-icon purple"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 6h-4v2h4v2h-4v2h4v2H9V7h6v2z"/></svg></div>
+          <div class="func-name">电子发票</div>
+        </div>
+      </div>
+
+      <!-- 充电站列表 -->
+      <div class="station-section">
+        <div class="section-header">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>
+            附近充电站
+          </div>
+          <div class="section-more">更多 <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+        <div class="station-list">
+          <div class="station-item">
+            <div class="station-left"><svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg></div>
+            <div class="station-center">
+              <div class="station-name">南山科技园快充站</div>
+              <div class="station-meta">
+                <span class="station-tag fast">快充</span>
+                <span>0.8km</span>
+                <span>空闲12/占用4</span>
+              </div>
+            </div>
+            <div class="station-right">
+              <div class="station-price">¥1.2<span>/度</span></div>
+              <div class="station-status">营业中</div>
+            </div>
+          </div>
+          <div class="station-item">
+            <div class="station-left"><svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg></div>
+            <div class="station-center">
+              <div class="station-name">福田CBD超充站</div>
+              <div class="station-meta">
+                <span class="station-tag fast">快充</span>
+                <span>1.2km</span>
+                <span>空闲8/占用2</span>
+              </div>
+            </div>
+            <div class="station-right">
+              <div class="station-price">¥1.5<span>/度</span></div>
+              <div class="station-status">营业中</div>
+            </div>
+          </div>
+          <div class="station-item">
+            <div class="station-left"><svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg></div>
+            <div class="station-center">
+              <div class="station-name">宝安中心城站</div>
+              <div class="station-meta">
+                <span class="station-tag slow">慢充</span>
+                <span>2.5km</span>
+                <span>空闲15/占用3</span>
+              </div>
+            </div>
+            <div class="station-right">
+              <div class="station-price">¥0.98<span>/度</span></div>
+              <div class="station-status">营业中</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- ==================== 商城页 ==================== -->
+  <div class="page" id="page-shop" style="position:relative">
+    <!-- 未加入碳积分计划遮挡 -->
+    <div class="no-plan-block" id="no-plan-shop">
+      <div class="no-plan-block-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 6h-4v2h4v2h-4v2h4v2H9V7h6v2z"/></svg></div>
+      <div class="no-plan-block-title">您尚未加入碳积分计划</div>
+      <div class="no-plan-block-desc">加入计划后即可解锁积分商城<br>兑换优惠券等多种权益</div>
+      <button class="no-plan-block-btn" onclick="joinPlanFromBlock()">立即加入</button>
+    </div>
+    <div class="page-scroll">
+      <div class="shop-header">
+        <div class="shop-search">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" placeholder="搜索优惠券">
+        </div>
+      </div>
+
+      <div class="points-float">
+        <div class="points-float-left">
+          <div class="points-float-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+          <div>
+            <div class="points-float-text">我的积分</div>
+            <div class="points-float-num" id="shop-points">3,280</div>
+          </div>
+        </div>
+        <svg style="width:20px;height:20px;fill:#ccc" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </div>
+
+      <div class="voucher-list">
+        <div class="voucher-card">
+          <div class="voucher-card-top">
+            <div class="voucher-value"><span>¥</span>30</div>
+            <div class="voucher-info">
+              <div class="voucher-name">精洗标准服务券</div>
+              <div class="voucher-desc">适用于标准洗车服务</div>
+            </div>
+          </div>
+          <div class="voucher-card-bottom">
+            <div>
+              <div class="voucher-cost"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> 800积分</div>
+              <div class="voucher-meta">有效期至 2026-05-31</div>
+            </div>
+            <button class="voucher-btn" onclick="redeemVoucher(800, '精洗标准服务券', 30)">立即兑换</button>
+          </div>
+        </div>
+
+        <div class="voucher-card">
+          <div class="voucher-card-top">
+            <div class="voucher-value"><span>¥</span>10</div>
+            <div class="voucher-info">
+              <div class="voucher-name">停车占用费抵扣券</div>
+              <div class="voucher-desc">抵扣充电后停车费用</div>
+            </div>
+          </div>
+          <div class="voucher-card-bottom">
+            <div>
+              <div class="voucher-cost"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> 500积分</div>
+              <div class="voucher-meta">有效期至 2026-04-30</div>
+            </div>
+            <button class="voucher-btn" onclick="redeemVoucher(500, '停车占用费抵扣券', 10)">立即兑换</button>
+          </div>
+        </div>
+
+        <div class="voucher-card">
+          <div class="voucher-card-top">
+            <div class="voucher-value"><span>¥</span>68</div>
+            <div class="voucher-info">
+              <div class="voucher-name">电池健康检测券</div>
+              <div class="voucher-desc">专业电池检测服务</div>
+            </div>
+          </div>
+          <div class="voucher-card-bottom">
+            <div>
+              <div class="voucher-cost"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> 1200积分</div>
+              <div class="voucher-meta">有效期至 2026-06-30</div>
+            </div>
+            <button class="voucher-btn" onclick="redeemVoucher(1200, '电池健康检测券', 68)">立即兑换</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="shop-footer-tip">积分兑换后不支持退换，请谨慎操作</div>
+    </div>
+  </div>
+
+  <!-- ==================== 碳积分页 ==================== -->
+  <div class="page" id="page-points" style="position:relative">
+    <!-- 未加入碳积分计划遮挡 -->
+    <div class="no-plan-block" id="no-plan-points">
+      <div class="no-plan-block-icon"><svg viewBox="0 0 24 24"><path d="M17.66 8L12 2.35 6.34 8A8.02 8.02 0 0 0 4 13.64c0 2 .78 4.11 2.34 5.67a7.99 7.99 0 0 0 11.32 0c1.56-1.56 2.34-3.67 2.34-5.67C20 11.04 19.22 9.03 17.66 8zM6 14c.01-2 .62-3.27 1.76-4.4L12 5.27l4.24 4.38C17.38 10.77 17.99 12 18 14H6z"/></svg></div>
+      <div class="no-plan-block-title">您尚未加入碳积分计划</div>
+      <div class="no-plan-block-desc">加入计划后即可查看碳积分<br>记录您的绿色充电贡献</div>
+      <button class="no-plan-block-btn" onclick="joinPlanFromBlock()">立即加入</button>
+    </div>
+    <div class="page-scroll">
+      <!-- 顶部导航栏 -->
+      <div class="carbon-nav">
+        <div class="carbon-nav-back" onclick="switchTab('home')">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </div>
+        <div class="carbon-nav-title">碳积分</div>
+      </div>
+
+      <!-- 核心数据卡片 -->
+      <div class="carbon-hero">
+        <div class="hero-points-label">当前碳积分</div>
+        <div class="hero-points-num" id="points-display">3,280</div>
+        <div class="hero-points-trend" id="points-trend">
+          <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+          本月积分 <span>+420</span> 较上月增长15%
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="stat-total-get">4,520</div>
+            <div class="hero-stat-label">累计获取</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="stat-total-spend">1,240</div>
+            <div class="hero-stat-label">累计消耗</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="stat-carbon">2.8t</div>
+            <div class="hero-stat-label">减排贡献</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 趋势图表区域 -->
+      <div class="chart-section">
+        <div class="chart-header">
+          <div class="chart-title">数据趋势</div>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="chart-legend-dot green"></div>累计积分</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot blue"></div>充电次数</div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <svg class="chart-svg" viewBox="0 0 340 120" preserveAspectRatio="none">
+            <!-- 网格线 -->
+            <line x1="0" y1="30" x2="340" y2="30" stroke="#f0f5f0" stroke-width="1"/>
+            <line x1="0" y1="60" x2="340" y2="60" stroke="#f0f5f0" stroke-width="1"/>
+            <line x1="0" y1="90" x2="340" y2="90" stroke="#f0f5f0" stroke-width="1"/>
+            <!-- 累计积分线（绿色） -->
+            <polyline fill="none" stroke="#1a7a3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              points="20,100 70,85 120,75 170,60 220,50 270,35 320,25"/>
+            <!-- 充电次数线（蓝色） -->
+            <polyline fill="none" stroke="#1890ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              points="20,90 70,80 120,85 170,65 220,70 270,55 320,45"/>
+            <!-- 绿色数据点 -->
+            <circle cx="20" cy="100" r="3" fill="#1a7a3c"/>
+            <circle cx="70" cy="85" r="3" fill="#1a7a3c"/>
+            <circle cx="120" cy="75" r="3" fill="#1a7a3c"/>
+            <circle cx="170" cy="60" r="3" fill="#1a7a3c"/>
+            <circle cx="220" cy="50" r="3" fill="#1a7a3c"/>
+            <circle cx="270" cy="35" r="3" fill="#1a7a3c"/>
+            <circle cx="320" cy="25" r="4" fill="#1a7a3c"/>
+            <!-- 蓝色数据点 -->
+            <circle cx="20" cy="90" r="3" fill="#1890ff"/>
+            <circle cx="70" cy="80" r="3" fill="#1890ff"/>
+            <circle cx="120" cy="85" r="3" fill="#1890ff"/>
+            <circle cx="170" cy="65" r="3" fill="#1890ff"/>
+            <circle cx="220" cy="70" r="3" fill="#1890ff"/>
+            <circle cx="270" cy="55" r="3" fill="#1890ff"/>
+            <circle cx="320" cy="45" r="4" fill="#1890ff"/>
+          </svg>
+        </div>
+        <!-- 月份标签 -->
+        <div style="display:flex;justify-content:space-between;margin-top:8px;padding:0 10px">
+          <span style="font-size:10px;color:var(--text-light)">1月</span>
+          <span style="font-size:10px;color:var(--text-light)">2月</span>
+          <span style="font-size:10px;color:var(--text-light)">3月</span>
+          <span style="font-size:10px;color:var(--text-light)">4月</span>
+          <span style="font-size:10px;color:var(--text-light)">5月</span>
+          <span style="font-size:10px;color:var(--text-light)">6月</span>
+          <span style="font-size:10px;color:var(--primary);font-weight:600">7月</span>
+        </div>
+      </div>
+
+      <!-- 快捷任务区 -->
+      <div class="mission-bar">
+        <select class="mission-select" id="mission-select">
+          <optgroup label="🌱 加分行为">
+            <option value="charge:40">完成充电 · +40积分</option>
+            <option value="offpeak:20">非高峰充电(22:00-06:00) · +20积分</option>
+            <option value="invoice:10">选择电子发票 · +10积分</option>
+            <option value="recycle:50">旧物回收 · +50积分</option>
+            <option value="green:15">绿色出行 · +15积分</option>
+            <option value="refer:30">推荐好友充电 · +30积分</option>
+            <option value="carinfo:25">完善车辆信息 · +25积分</option>
+            <option value="activity:50">参与环保活动 · +50积分</option>
+          </optgroup>
+          <optgroup label="⚠️ 扣分行为">
+            <option value="overtime:-30">超时占用车位 · -30积分</option>
+            <option value="cancel:-20">恶意取消订单 · -20积分</option>
+            <option value="noshow:-25">预约爽约 · -25积分</option>
+          </optgroup>
+        </select>
+        <div class="go-btn" onclick="executeMission()">行动 <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>
+      </div>
+
+      <!-- 积分规则 -->
+      <div class="rules-section">
+        <div class="rules-header" onclick="toggleRules()">
+          <div class="rules-title">积分规则</div>
+          <div class="rules-toggle">点击展开 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>
+        </div>
+        <div class="rules-body collapsed" id="rules-body">
+          <div class="rules-group">
+            <div class="rules-group-title positive"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> 加分行为</div>
+            <div class="rule-item"><div class="rule-text">完成充电任务（快充≥20分钟）</div><div class="rule-pts positive">+40</div></div>
+            <div class="rule-item"><div class="rule-text">非高峰期充电（22:00-06:00）</div><div class="rule-pts positive">+20</div></div>
+            <div class="rule-item"><div class="rule-text">选择电子发票</div><div class="rule-pts positive">+10</div></div>
+            <div class="rule-item"><div class="rule-text">旧物回收</div><div class="rule-pts positive">+50</div></div>
+            <div class="rule-item"><div class="rule-text">绿色出行到达充电站</div><div class="rule-pts positive">+15</div></div>
+            <div class="rule-item"><div class="rule-text">推荐好友充电</div><div class="rule-pts positive">+30</div></div>
+            <div class="rule-item"><div class="rule-text">完善车辆信息</div><div class="rule-pts positive">+25</div></div>
+            <div class="rule-item"><div class="rule-text">参与环保活动</div><div class="rule-pts positive">+50</div></div>
+          </div>
+          <div class="rules-group">
+            <div class="rules-group-title negative"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> 扣分行为</div>
+            <div class="rule-item"><div class="rule-text">超时占用车位</div><div class="rule-pts negative">-30</div></div>
+            <div class="rule-item"><div class="rule-text">恶意取消订单</div><div class="rule-pts negative">-20</div></div>
+            <div class="rule-item"><div class="rule-text">预约爽约</div><div class="rule-pts negative">-25</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 积分明细列表 -->
+      <div class="detail-section">
+        <div class="detail-header">
+          <div class="detail-title">积分明细</div>
+          <div class="detail-more">全部 <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+        <div class="detail-list" id="points-detail-list">
+          <div class="detail-item">
+            <div class="detail-icon plus"><svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg></div>
+            <div class="detail-info"><div class="detail-name">完成充电 · 南山科技园站</div><div class="detail-time">2026-04-20 15:32</div></div>
+            <div class="detail-pts plus">+50</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-icon plus"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+            <div class="detail-info"><div class="detail-name">非高峰充电奖励</div><div class="detail-time">2026-04-20 07:48</div></div>
+            <div class="detail-pts plus">+20</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-icon minus"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+            <div class="detail-info"><div class="detail-name">积分兑换 · 优惠券</div><div class="detail-time">2026-04-19 20:15</div></div>
+            <div class="detail-pts minus">-200</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-icon plus"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 6h-4v2h4v2h-4v2h4v2H9V7h6v2z"/></svg></div>
+            <div class="detail-info"><div class="detail-name">选择电子发票</div><div class="detail-time">2026-04-19 14:22</div></div>
+            <div class="detail-pts plus">+10</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-icon plus"><svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg></div>
+            <div class="detail-info"><div class="detail-name">完成充电 · 福田CBD站</div><div class="detail-time">2026-04-18 16:45</div></div>
+            <div class="detail-pts plus">+40</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-icon plus"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+            <div class="detail-info"><div class="detail-name">绿色出行到达充电站</div><div class="detail-time">2026-04-18 11:30</div></div>
+            <div class="detail-pts plus">+15</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-icon minus"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+            <div class="detail-info"><div class="detail-name">超时占用车位</div><div class="detail-time">2026-04-17 18:20</div></div>
+            <div class="detail-pts minus">-30</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 我的页 ==================== -->
+  <div class="page" id="page-profile">
+    <div class="page-scroll">
+      <div class="profile-header">
+        <div class="profile-avatar"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+        <div class="profile-info">
+          <div class="profile-name">用户_3217</div>
+          <div class="profile-phone" id="profile-phone">138****8888</div>
+        </div>
+      </div>
+
+      <div class="assets-card">
+        <div class="asset-item">
+          <div class="asset-value" id="profile-points">3,280</div>
+          <div class="asset-label">积分</div>
+        </div>
+        <div class="asset-item">
+          <div class="asset-value" id="profile-charges">12</div>
+          <div class="asset-label">充电次数</div>
+        </div>
+        <div class="asset-item">
+          <div class="asset-value" id="profile-coupons">3</div>
+          <div class="asset-label">优惠券</div>
+        </div>
+      </div>
+
+      <div class="func-section">
+        <div class="func-list-item">
+          <div class="func-list-icon green"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 6h-4v2h4v2h-4v2h4v2H9V7h6v2z"/></svg></div>
+          <div class="func-list-text">我的发票</div>
+          <div class="func-list-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+        <div class="func-list-item">
+          <div class="func-list-icon blue"><svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
+          <div class="func-list-text">充电记录</div>
+          <div class="func-list-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+        <div class="func-list-item">
+          <div class="func-list-icon orange"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
+          <div class="func-list-text">我的车辆</div>
+          <div class="func-list-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+      </div>
+
+      <div class="my-coupons-section">
+        <div class="section-header">
+          <div class="section-title">我的优惠券</div>
+          <div class="section-more">全部 <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+        <div id="coupons-list">
+          <div class="coupon-item">
+            <div class="coupon-left"><div class="coupon-value"><span>¥</span>30</div></div>
+            <div class="coupon-info"><div class="coupon-name">精洗标准服务券</div><div class="coupon-expire">有效期至 2026-05-31</div></div>
+          </div>
+          <div class="coupon-item">
+            <div class="coupon-left"><div class="coupon-value"><span>¥</span>10</div></div>
+            <div class="coupon-info"><div class="coupon-name">停车费抵扣券</div><div class="coupon-expire">有效期至 2026-04-30</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('home')">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+      <div class="tab-label">首页</div>
+    </div>
+    <div class="tab-item" onclick="switchTab('shop')">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+      <div class="tab-label">商城</div>
+    </div>
+    <div class="tab-item" onclick="switchTab('points')">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+      <div class="tab-label">积分</div>
+    </div>
+    <div class="tab-item" onclick="switchTab('profile')">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+      <div class="tab-label">我的</div>
+    </div>
+  </div>
+</div>
+
+<!-- 兑换成功弹窗 -->
+<div class="overlay" id="exchange-overlay">
+  <div class="modal">
+    <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+    <div class="modal-title">兑换成功</div>
+    <div class="modal-subtitle" id="exchange-voucher-name">精洗标准服务券</div>
+    <div class="modal-code" id="exchange-code">8392-4715-6283</div>
+    <div style="font-size:12px;color:var(--text-light);margin-bottom:12px">请保存核销码，使用时出示</div>
+    <button class="modal-btn" onclick="closeExchangeModal()">关闭</button>
+  </div>
+</div>
+
+<!-- 优惠券详情弹窗 -->
+<div class="overlay" id="coupon-detail-overlay">
+  <div class="modal">
+    <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg></div>
+    <div class="modal-title" id="coupon-detail-name">优惠券详情</div>
+    <div class="modal-subtitle" style="font-size:24px;font-weight:700;color:var(--primary);margin:8px 0" id="coupon-detail-value">¥30</div>
+    <div class="modal-code" id="coupon-detail-code">8392-4715-6283</div>
+    <div style="font-size:12px;color:var(--text-light);margin:8px 0 12px">有效期至 <span id="coupon-detail-expire">2026-05-31</span></div>
+    <button class="modal-btn" onclick="closeCouponDetail()">关闭</button>
+  </div>
+</div>
+
+<!-- 碳积分计划邀请弹窗 -->
+<div class="carbon-plan-overlay" id="carbon-plan-overlay">
+  <div class="carbon-plan-modal">
+    <div class="carbon-plan-banner">
+      <div class="carbon-plan-icon">
+        <svg viewBox="0 0 24 24"><path d="M17.66 8L12 2.35 6.34 8A8.02 8.02 0 0 0 4 13.64c0 2 .78 4.11 2.34 5.67a7.99 7.99 0 0 0 11.32 0c1.56-1.56 2.34-3.67 2.34-5.67C20 11.04 19.22 9.03 17.66 8zM6 14c.01-2 .62-3.27 1.76-4.4L12 5.27l4.24 4.38C17.38 10.77 17.99 12 18 14H6z"/></svg>
+      </div>
+      <div class="carbon-plan-banner-title">🌿 加入碳积分计划</div>
+      <div class="carbon-plan-banner-desc">绿色充电，积少成多，为地球减碳</div>
+    </div>
+    <div class="carbon-plan-body">
+      <div class="carbon-plan-features">
+        <div class="carbon-plan-feature">
+          <div class="carbon-plan-feature-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+          <div class="carbon-plan-feature-text">每次充电可获得 <strong>+40积分</strong>，非高峰充电额外 <strong>+20积分</strong></div>
+        </div>
+        <div class="carbon-plan-feature">
+          <div class="carbon-plan-feature-icon"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+          <div class="carbon-plan-feature-text">积分可兑换 <strong>优惠券、洗车券、停车券</strong> 等多种权益</div>
+        </div>
+        <div class="carbon-plan-feature">
+          <div class="carbon-plan-feature-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+          <div class="carbon-plan-feature-text">绿色出行、旧物回收等 <strong>8种行为</strong> 均可获积分</div>
+        </div>
+      </div>
+      <div class="carbon-plan-btns">
+        <button class="carbon-plan-join" onclick="joinCarbonPlan()">立即加入，获得积分奖励</button>
+        <button class="carbon-plan-skip" onclick="skipCarbonPlan()">暂不加入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 碳积分计划已加入提示 -->
+<div class="carbon-plan-joined-toast" id="carbon-plan-joined-toast">
+  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+  <div class="toast-title">🎉 欢迎加入碳积分计划！</div>
+  <div class="toast-desc">每次绿色充电都在为地球减碳</div>
+</div>
+
+<!-- 积分变动提示 -->
+<div class="overlay" id="toast-overlay">
+  <div class="modal">
+    <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+    <div class="modal-title">积分变动</div>
+    <div class="modal-code" id="toast-value">+40</div>
+    <button class="modal-btn" onclick="closeToast()">确定</button>
+  </div>
 </div>
 
 <script>
-    // ---------- 预设老用户数据 (张明) ----------
-    var OLD_USER_DATA = {
-        nickname: "张明",
-        isJoinedPlan: true,
-        carbon: {
-            currentPoints: 150,
-            totalEarned: 150,
-            chargeCount: 4,
-            monthlyPoints: [0, 0, 0, 25, 70, 150],
-            monthlyCharges: [0, 0, 0, 1, 2, 4],
-            records: [
-                { time: "2026-05-20 19:30", action: "非高峰时段充电", delta: 10 },
-                { time: "2026-05-15 08:20", action: "旧物回收 (废旧电池)", delta: 20 },
-                { time: "2026-05-10 12:00", action: "选择电子发票", delta: 5 },
-                { time: "2026-04-25 21:10", action: "非高峰时段充电", delta: 10 },
-                { time: "2026-04-10 10:45", action: "旧物回收 (轮胎)", delta: 20 },
-                { time: "2026-03-28 16:20", action: "非高峰时段充电", delta: 10 }
-            ]
-        }
+  // ==================== 登录相关 ====================
+  function togglePwd() {
+    var pwdInput = document.getElementById('login-pwd');
+    pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
+  }
+  
+  // 判断是否是新用户（模拟：以手机号结尾数字判断）
+  function isNewUser(phone) {
+    // 模拟逻辑：手机号末尾是奇数视为新用户，偶数视为老用户
+    var lastDigit = parseInt(phone.slice(-1));
+    return lastDigit % 2 === 1;
+  }
+  
+  function doLogin() {
+    var phone = document.getElementById('login-phone').value;
+    var pwd = document.getElementById('login-pwd').value;
+    
+    if (!phone) {
+      alert('请输入手机号');
+      return;
+    }
+    if (!pwd) {
+      alert('请输入密码');
+      return;
+    }
+    
+    // 老用户登录：直接进入首页
+    document.getElementById('login-page').classList.add('hidden');
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userPhone', phone);
+    localStorage.setItem('isNewUser', 'false');
+    
+    // 显示欢迎回来提示
+    showWelcomeBack();
+    // 更新用户号码显示
+    updatePhoneDisplay(phone);
+  }
+  
+  function loginWithWechat() {
+    // 模拟微信登录 - 随机判断新老用户
+    var isNew = Math.random() > 0.5;
+    // 生成随机手机号
+    var phone = '138' + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+    
+    document.getElementById('login-page').classList.add('hidden');
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userPhone', phone);
+    
+    if (isNew) {
+      localStorage.setItem('isNewUser', 'true');
+      document.getElementById('welcome-page').classList.add('show');
+      // 新用户初始化
+      appState.carbonPoints = 200;
+      appState.myCoupons = [];
+      appState.pointsDetails = [
+        { name: '新人注册赠送', time: formatDate(new Date()), pts: '+200', type: 'plus' }
+      ];
+      // 新用户充电次数必须先设为0，再重置折线图数据，最后渲染
+      appState.chargeCount = 0;
+      initNewUserChart();
+      updatePointsDisplay();
+      renderPointsDetails();
+      renderChart();
+      // 下面的 chargeCount=0 是冗余的但保留以确保一致
+      // （不要删除，否则其他地方依赖这行代码注释为标记）
+      // 更新优惠券数量显示
+      var profileCoupons = document.getElementById('profile-coupons');
+      if (profileCoupons) profileCoupons.textContent = '0';
+      // 更新积分统计（新用户）
+      var statGet = document.getElementById('stat-total-get');
+      var statSpend = document.getElementById('stat-total-spend');
+      var statCarbon = document.getElementById('stat-carbon');
+      var pointsTrend = document.getElementById('points-trend');
+      if (statGet) statGet.textContent = '200';
+      if (statSpend) statSpend.textContent = '0';
+      if (statCarbon) statCarbon.textContent = '0';
+      if (pointsTrend) pointsTrend.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>本月积分 <span>+200</span> 新用户赠送';
+      // 渲染优惠券列表（新用户为空）
+      renderMyCoupons();
+      // 更新用户号码显示
+      updatePhoneDisplay(phone);
+      // 新用户充电次数为0，同步重置折线图数据
+      appState.chargeCount = 0;
+      initNewUserChart();
+      var profileCharges = document.getElementById('profile-charges');
+      if (profileCharges) profileCharges.textContent = '0';
+    } else {
+      localStorage.setItem('isNewUser', 'false');
+      showWelcomeBack();
+      // 更新用户号码显示
+      updatePhoneDisplay(phone);
+    }
+  }
+  
+  function loginWithPhone() {
+    alert('验证码已发送，请查收');
+  }
+  
+  function goRegister() {
+    // 显示注册页面
+    document.getElementById('login-page').classList.add('hidden');
+    document.getElementById('register-page').classList.remove('hidden');
+  }
+  
+  function backToLogin() {
+    // 返回登录页面
+    document.getElementById('register-page').classList.add('hidden');
+    document.getElementById('login-page').classList.remove('hidden');
+  }
+  
+  function doRegister() {
+    var phone = document.getElementById('register-phone').value;
+    var pwd = document.getElementById('register-pwd').value;
+    var pwd2 = document.getElementById('register-pwd2').value;
+    
+    if (!phone) {
+      alert('请输入手机号');
+      return;
+    }
+    if (!pwd) {
+      alert('请输入密码');
+      return;
+    }
+    if (!pwd2) {
+      alert('请确认密码');
+      return;
+    }
+    if (pwd !== pwd2) {
+      alert('两次密码不一致');
+      return;
+    }
+    
+    // 新用户注册成功
+    document.getElementById('register-page').classList.add('hidden');
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userPhone', phone);
+    localStorage.setItem('isNewUser', 'true');
+    
+    // 显示欢迎引导页
+    document.getElementById('welcome-page').classList.add('show');
+    // 新用户初始化
+    appState.carbonPoints = 200;
+    appState.myCoupons = [];
+    appState.pointsDetails = [
+      { name: '新人注册赠送', time: formatDate(new Date()), pts: '+200', type: 'plus' }
+    ];
+    // 新用户充电次数必须先设为0，再重置折线图数据，最后渲染
+    appState.chargeCount = 0;
+    initNewUserChart();
+    updatePointsDisplay();
+    renderPointsDetails();
+    renderChart();
+    // 更新优惠券数量显示
+    var profileCoupons = document.getElementById('profile-coupons');
+    if (profileCoupons) profileCoupons.textContent = '0';
+    // 更新积分统计（新用户）
+    var statGet = document.getElementById('stat-total-get');
+    var statSpend = document.getElementById('stat-total-spend');
+    var statCarbon = document.getElementById('stat-carbon');
+    var pointsTrend = document.getElementById('points-trend');
+    if (statGet) statGet.textContent = '200';
+    if (statSpend) statSpend.textContent = '0';
+    if (statCarbon) statCarbon.textContent = '0';
+    if (pointsTrend) pointsTrend.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>本月积分 <span>+200</span> 新用户赠送';
+    // 渲染优惠券列表（新用户为空）
+    renderMyCoupons();
+    // 更新用户号码显示
+    updatePhoneDisplay(phone);
+    // 新用户充电次数为0，同步重置折线图数据
+    appState.chargeCount = 0;
+    initNewUserChart();
+    var profileCharges = document.getElementById('profile-charges');
+    if (profileCharges) profileCharges.textContent = '0';
+  }
+  
+  // 脱敏显示手机号（如 138****8888）
+  function maskPhone(phone) {
+    if (!phone || phone.length < 7) return phone;
+    return phone.slice(0, 3) + '****' + phone.slice(-4);
+  }
+  
+  // 更新用户号码显示
+  function updatePhoneDisplay(phone) {
+    var el = document.getElementById('profile-phone');
+    if (el) el.textContent = maskPhone(phone);
+  }
+  
+  // 格式化日期
+  function formatDate(date) {
+    var y = date.getFullYear();
+    var m = String(date.getMonth() + 1).padStart(2, '0');
+    var d = String(date.getDate()).padStart(2, '0');
+    var h = String(date.getHours()).padStart(2, '0');
+    var min = String(date.getMinutes()).padStart(2, '0');
+    return y + '-' + m + '-' + d + ' ' + h + ':' + min;
+  }
+  
+  // 渲染积分明细
+  function renderPointsDetails() {
+    var list = document.getElementById('points-detail-list');
+    if (!list || !appState.pointsDetails) return;
+    
+    var icons = {
+      plus: '<svg viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>',
+      minus: '<svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>'
     };
+    
+    var html = '';
+    appState.pointsDetails.forEach(function(item) {
+      html += '<div class="detail-item">' +
+        '<div class="detail-icon ' + item.type + '">' + icons[item.type] + '</div>' +
+        '<div class="detail-info"><div class="detail-name">' + item.name + '</div><div class="detail-time">' + item.time + '</div></div>' +
+        '<div class="detail-pts ' + item.type + '">' + item.pts + '</div>' +
+      '</div>';
+    });
+    list.innerHTML = html;
+  }
+  
+  function closeWelcome() {
+    document.getElementById('welcome-page').classList.remove('show');
+    // 新用户关闭欢迎页后，弹出碳积分计划邀请
+    showCarbonPlanInvitation();
+  }
+  
+  function startUsing() {
+    document.getElementById('welcome-page').classList.remove('show');
+    // 新用户点击"立即开始使用"后，弹出碳积分计划邀请
+    showCarbonPlanInvitation();
+  }
+  
+  // 显示碳积分计划邀请弹窗
+  function showCarbonPlanInvitation() {
+    // 仅对新用户显示（且尚未做过选择）
+    var isNew = localStorage.getItem('isNewUser') === 'true';
+    var hasDecided = localStorage.getItem('carbonPlanDecided') === 'true';
+    if (isNew && !hasDecided) {
+      setTimeout(function() {
+        document.getElementById('carbon-plan-overlay').classList.add('show');
+      }, 400);
+    }
+  }
+  
+  // 加入碳积分计划
+  function joinCarbonPlan() {
+    localStorage.setItem('carbonPlanJoined', 'true');
+    localStorage.setItem('carbonPlanDecided', 'true');
+    document.getElementById('carbon-plan-overlay').classList.remove('show');
+    
+    // 显示加入成功提示
+    var toast = document.getElementById('carbon-plan-joined-toast');
+    toast.classList.add('show');
+    setTimeout(function() {
+      toast.classList.remove('show');
+    }, 2000);
+  }
+  
+  // 暂不加入碳积分计划
+  function skipCarbonPlan() {
+    localStorage.setItem('carbonPlanJoined', 'false');
+    localStorage.setItem('carbonPlanDecided', 'true');
+    document.getElementById('carbon-plan-overlay').classList.remove('show');
+  }
+  
+  function showWelcomeBack() {
+    var welcomeBack = document.getElementById('welcome-back');
+    welcomeBack.classList.add('show');
+    setTimeout(function() {
+      welcomeBack.classList.remove('show');
+    }, 1500);
+  }
+  
+  function logout() {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userPhone');
+    localStorage.removeItem('isNewUser');
+    localStorage.removeItem('carbonPlanDecided');
+    localStorage.removeItem('carbonPlanJoined');
+    document.getElementById('welcome-page').classList.remove('show');
+    document.getElementById('carbon-plan-overlay').classList.remove('show');
+    document.getElementById('carbon-plan-joined-toast').classList.remove('show');
+    document.getElementById('register-page').classList.add('hidden');
+    document.getElementById('login-page').classList.remove('hidden');
+  }
+  
+  // 更新积分显示（同时更新积分页、商城页、我的页）
+  function updatePointsDisplay() {
+    var pointsStr = appState.carbonPoints.toLocaleString();
+    
+    // 积分页面
+    var pointsDisplay = document.getElementById('points-display');
+    if (pointsDisplay) {
+      pointsDisplay.textContent = pointsStr;
+    }
+    
+    // 商城页面
+    var shopPoints = document.getElementById('shop-points');
+    if (shopPoints) {
+      shopPoints.textContent = pointsStr;
+    }
+    
+    // 我的页面
+    var profilePoints = document.getElementById('profile-points');
+    if (profilePoints) {
+      profilePoints.textContent = pointsStr;
+    }
+  }
+  
+  // ==================== 折线图数据 ====================
+  // 7个月的数据点（x坐标固定：20,70,120,170,220,270,320）
+  var chartX = [20, 70, 120, 170, 220, 270, 320];
+  var chartYMin = 10; // SVG y轴最小值（对应最高数据）
+  var chartYMax = 100; // SVG y轴最大值（对应0或最低数据）
 
-    // ---------- 全局应用状态 ----------
-    var App = {
-        isLoggedIn: false,
-        user: {
-            nickname: '',
-            isJoinedPlan: false
-        },
-        carbon: {
-            currentPoints: 0,
-            totalEarned: 0,
-            chargeCount: 0,
-            monthlyPoints: [0,0,0,0,0,0],
-            monthlyCharges: [0,0,0,0,0,0],
-            records: []
-        }
+  // 老用户历史数据
+  var chartPointsBase = [1200, 1850, 2400, 2700, 2950, 3100, 3280]; // 累计积分
+  var chartChargesBase = [2, 4, 5, 8, 9, 11, 12]; // 充电次数
+  // 新用户历史数据（前6个月为0，当月有初始200）
+  var chartPointsNewBase = [0, 0, 0, 0, 0, 0, 200];
+  var chartChargesNewBase = [0, 0, 0, 0, 0, 0, 0];
+
+  // 当前使用的数据（会被 executeMission 动态修改）
+  var chartPointsData = chartPointsBase.slice();
+  var chartChargesData = chartChargesBase.slice();
+
+  // 数据值 -> SVG y坐标（值越大，y越小）
+  function dataToY(value, maxVal) {
+    if (maxVal <= 0) maxVal = 1;
+    var ratio = value / maxVal;
+    return Math.round(chartYMax - ratio * (chartYMax - chartYMin));
+  }
+
+  // 渲染折线图
+  function renderChart() {
+    var chartContainer = document.querySelector('.chart-container');
+    if (!chartContainer) return;
+
+    // 更新当月（最后一个点）的数据
+    var currentPoints = appState.carbonPoints;
+    var currentCharges = appState.chargeCount || 0;
+    chartPointsData[6] = currentPoints;
+    chartChargesData[6] = currentCharges;
+
+    // 固定Y轴范围，消除小幅波动导致的大幅跳动
+    var pointsMin = 0;
+    var pointsMax = Math.max(pointsMin + 1, Math.max.apply(null, chartPointsData));
+    // 保证当月点在上半区，视觉舒适
+    pointsMax = Math.max(pointsMax, Math.round(pointsMin + pointsMax * 0.3));
+    // 固定幅度：最小500，最大20000，根据实际数据选择
+    var pointsFixedMax = 500;
+    if (pointsMax > 500) pointsFixedMax = 1000;
+    if (pointsMax > 1000) pointsFixedMax = 2000;
+    if (pointsMax > 2000) pointsFixedMax = 5000;
+    if (pointsMax > 5000) pointsFixedMax = 10000;
+    if (pointsMax > 10000) pointsFixedMax = 20000;
+    if (pointsMax > 20000) pointsFixedMax = 50000;
+
+    var chargesMin = 0;
+    var chargesDataMax = Math.max.apply(null, chartChargesData);
+    // 新用户首次充电前数据全为0，固定显示范围0-15，让折线在中间偏下区域可见
+    var chargesFixedMax = (chargesDataMax === 0) ? 15 : Math.ceil(chargesDataMax * 1.3) + 5;
+
+    // 生成折线点字符串
+    var pointsLine = chartX.map(function(x, i) { return x + ',' + dataToY(chartPointsData[i], pointsFixedMax); }).join(' ');
+    var chargesLine = chartX.map(function(x, i) { return x + ',' + dataToY(chartChargesData[i], chargesFixedMax); }).join(' ');
+
+    // 数据点圆圈（带悬停提示）
+    var monthNames = ['9月','10月','11月','12月','1月','2月','当月'];
+    var pointsDots = chartX.map(function(x, i) {
+      var r = (i === 6) ? 5 : 3;
+      var val = chartPointsData[i];
+      var label = monthNames[i] + ' 累计积分：' + val.toLocaleString();
+      return '<circle cx="' + x + '" cy="' + dataToY(val, pointsFixedMax) + '" r="' + r + '" fill="#1a7a3c"><title>' + label + '</title></circle>';
+    }).join('');
+    var chargesDots = chartX.map(function(x, i) {
+      var r = (i === 6) ? 5 : 3;
+      var val = chartChargesData[i];
+      var label = monthNames[i] + ' 充电次数：' + val + '次';
+      return '<circle cx="' + x + '" cy="' + dataToY(val, chargesFixedMax) + '" r="' + r + '" fill="#1890ff"><title>' + label + '</title></circle>';
+    }).join('');
+
+    chartContainer.innerHTML =
+      '<svg class="chart-svg" viewBox="0 0 340 120" preserveAspectRatio="none" style="cursor:pointer">' +
+        '<line x1="0" y1="30" x2="340" y2="30" stroke="#f0f5f0" stroke-width="1"/>' +
+        '<line x1="0" y1="60" x2="340" y2="60" stroke="#f0f5f0" stroke-width="1"/>' +
+        '<line x1="0" y1="90" x2="340" y2="90" stroke="#f0f5f0" stroke-width="1"/>' +
+        '<polyline fill="none" stroke="#1a7a3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="' + pointsLine + '"/>' +
+        '<polyline fill="none" stroke="#1890ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="' + chargesLine + '"/>' +
+        pointsDots +
+        chargesDots +
+      '</svg>';
+  }
+
+  // 初始化新用户折线图数据
+  function initNewUserChart() {
+    chartPointsData = chartPointsNewBase.slice();
+    chartChargesData = chartChargesNewBase.slice();
+  }
+  
+  // ==================== 应用状态 ====================
+  var appState = {
+    carbonPoints: 3280,
+    chargeCount: 12, // 老用户充电次数
+    myCoupons: [
+      { name: '精洗标准服务券', value: 30, code: '8392-4715-6283', expire: '2026-05-31' },
+      { name: '停车费抵扣券', value: 10, code: '5621-9038-7456', expire: '2026-04-30' }
+    ],
+    // 老用户的积分明细
+    pointsDetails: [
+      { name: '完成充电 · 南山科技园站', time: '2026-04-20 15:32', pts: '+50', type: 'plus' },
+      { name: '非高峰充电奖励', time: '2026-04-20 07:48', pts: '+20', type: 'plus' },
+      { name: '积分兑换 · 优惠券', time: '2026-04-19 20:15', pts: '-200', type: 'minus' },
+      { name: '选择电子发票', time: '2026-04-19 14:22', pts: '+10', type: 'plus' },
+      { name: '完成充电 · 福田CBD站', time: '2026-04-18 16:45', pts: '+40', type: 'plus' },
+      { name: '绿色出行到达充电站', time: '2026-04-18 11:30', pts: '+15', type: 'plus' },
+      { name: '超时占用车位', time: '2026-04-17 18:20', pts: '-30', type: 'minus' }
+    ]
+  };
+
+  // 检查登录状态（必须在appState定义之后）
+  // 开发阶段：默认清除登录状态，方便测试
+  localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('userPhone');
+  localStorage.removeItem('isNewUser');
+  localStorage.removeItem('carbonPlanDecided');
+  localStorage.removeItem('carbonPlanJoined');
+  
+  if (localStorage.getItem('isLoggedIn') === 'true') {
+    document.getElementById('login-page').classList.add('hidden');
+  }
+
+
+  // 切换页面
+  function switchTab(tab) {
+    var pageMap = { home: 'page-home', shop: 'page-shop', points: 'page-points', profile: 'page-profile' };
+    var tabItems = document.querySelectorAll('.tab-item');
+    var pages = document.querySelectorAll('.page');
+    
+    tabItems.forEach(function(item) { item.classList.remove('active'); });
+    pages.forEach(function(page) { page.classList.remove('active'); });
+    
+    event.currentTarget.classList.add('active');
+    document.getElementById(pageMap[tab]).classList.add('active');
+
+    // 检查是否未加入碳积分计划，若未加入则遮挡商城和积分页
+    checkPlanBlock(tab);
+  }
+
+  // 检查并控制未加入计划的遮挡层
+  function checkPlanBlock(tab) {
+    var joined = localStorage.getItem('carbonPlanJoined');
+    // 只有明确选择不加入(false)时才遮挡；未选择或已加入都不遮挡
+    var showBlock = (joined === 'false');
+
+    var blockShop = document.getElementById('no-plan-shop');
+    var blockPoints = document.getElementById('no-plan-points');
+
+    if (showBlock) {
+      if (tab === 'shop') blockShop.classList.add('show');
+      else blockShop.classList.remove('show');
+      if (tab === 'points') blockPoints.classList.add('show');
+      else blockPoints.classList.remove('show');
+    } else {
+      blockShop.classList.remove('show');
+      blockPoints.classList.remove('show');
+    }
+  }
+
+  // 从遮挡层点击"立即加入"
+  function joinPlanFromBlock() {
+    localStorage.setItem('carbonPlanJoined', 'true');
+    localStorage.setItem('carbonPlanDecided', 'true');
+    // 移除所有遮挡
+    document.getElementById('no-plan-shop').classList.remove('show');
+    document.getElementById('no-plan-points').classList.remove('show');
+    // 显示加入成功提示
+    var toast = document.getElementById('carbon-plan-joined-toast');
+    toast.classList.add('show');
+    setTimeout(function() {
+      toast.classList.remove('show');
+    }, 2000);
+  }
+
+  // 兑换优惠券
+  function redeemVoucher(cost, name, value) {
+    if (appState.carbonPoints < cost) {
+      alert('积分不足');
+      return;
+    }
+    
+    appState.carbonPoints -= cost;
+    var code = genCode();
+    
+    appState.myCoupons.push({ name: name, value: value, code: code, expire: '2026-06-30' });
+    
+    updateAllPointsDisplays();
+    renderMyCoupons();
+    
+    // 更新累计消耗
+    updatePointsStats(-cost);
+    
+    document.getElementById('exchange-voucher-name').textContent = name;
+    document.getElementById('exchange-code').textContent = code;
+    document.getElementById('exchange-overlay').classList.add('show');
+  }
+
+  // 生成核销码
+  function genCode() {
+    var code = '';
+    for (var i = 0; i < 12; i++) {
+      if (i > 0 && i % 4 === 0) code += '-';
+      code += Math.floor(Math.random() * 10);
+    }
+    return code;
+  }
+
+  // 关闭兑换弹窗
+  function closeExchangeModal() {
+    document.getElementById('exchange-overlay').classList.remove('show');
+  }
+
+  // 更新所有积分显示
+  function updateAllPointsDisplays() {
+    var num = appState.carbonPoints.toLocaleString();
+    document.getElementById('points-display').textContent = num;
+    document.getElementById('shop-points').textContent = num;
+    document.getElementById('profile-points').textContent = num;
+  }
+
+  // 渲染优惠券列表
+  function renderMyCoupons() {
+    var list = document.getElementById('coupons-list');
+    list.innerHTML = appState.myCoupons.map(function(c, index) {
+      return '<div class="coupon-item" onclick="showCouponDetail(' + index + ')">' +
+        '<div class="coupon-left"><div class="coupon-value"><span>¥</span>' + c.value + '</div></div>' +
+        '<div class="coupon-info"><div class="coupon-name">' + c.name + '</div><div class="coupon-expire">有效期至 ' + c.expire + '</div></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // 显示优惠券详情
+  function showCouponDetail(index) {
+    var coupon = appState.myCoupons[index];
+    document.getElementById('coupon-detail-name').textContent = coupon.name;
+    document.getElementById('coupon-detail-value').textContent = '¥' + coupon.value;
+    document.getElementById('coupon-detail-code').textContent = coupon.code;
+    document.getElementById('coupon-detail-expire').textContent = coupon.expire;
+    document.getElementById('coupon-detail-overlay').classList.add('show');
+  }
+
+  // 关闭优惠券详情
+  function closeCouponDetail() {
+    document.getElementById('coupon-detail-overlay').classList.remove('show');
+  }
+
+  // 执行任务
+  function executeMission() {
+    var select = document.getElementById('mission-select');
+    var value = select.value;
+    var parts = value.split(':');
+    var taskId = parts[0];
+    var pts = parseInt(parts[1], 10);
+    
+    // 任务名称映射
+    var taskNames = {
+      charge: '完成充电',
+      offpeak: '非高峰充电奖励',
+      invoice: '选择电子发票',
+      recycle: '旧物回收',
+      green: '绿色出行到达充电站',
+      refer: '推荐好友充电',
+      carinfo: '完善车辆信息',
+      activity: '参与环保活动',
+      overtime: '超时占用车位',
+      cancel: '恶意取消订单',
+      noshow: '预约爽约'
     };
-    var MONTHS = ["1月","2月","3月","4月","5月","6月"];
-    var CURRENT_MONTH_IDX = 5;
-    var chart = null;
-
-    function showToast(msg, duration) {
-        duration = duration || 1500;
-        var existing = document.querySelector('.toast-message');
-        if (existing) existing.remove();
-        var toast = document.createElement('div');
-        toast.className = 'toast-message';
-        toast.innerText = msg;
-        document.body.appendChild(toast);
-        setTimeout(function() { toast.remove(); }, duration);
-    }
-
-    function getCurrentTime() {
-        var now = new Date();
-        var year = now.getFullYear();
-        var month = now.getMonth() + 1;
-        var day = now.getDate();
-        var hour = now.getHours();
-        var minute = now.getMinutes();
-        if (hour < 10) hour = '0' + hour;
-        if (minute < 10) minute = '0' + minute;
-        return year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
-    }
-
-    function refreshCarbonUI() {
-        var memberContent = document.getElementById('memberContent');
-        if (memberContent) {
-            if (!App.user.isJoinedPlan) {
-                memberContent.innerHTML = '<div class="placeholder-card"><i class="fas fa-leaf" style="font-size:40px;"></i><p style="margin:16px 0">您尚未加入碳积分计划</p><button class="btn-outline" id="gotoHomeFromMember">去首页加入</button></div>';
-                var gotoBtn = document.getElementById('gotoHomeFromMember');
-                if (gotoBtn) gotoBtn.onclick = function() { showPage('home'); };
-                return;
-            }
-            var reduceVal = (App.carbon.totalEarned * 0.08).toFixed(1);
-            var badges = [];
-            if (App.carbon.totalEarned >= 100) badges.push('🌱 低碳先锋');
-            var hasRecycle = false, hasOffpeak = false;
-            for (var i = 0; i < App.carbon.records.length; i++) {
-                if (App.carbon.records[i].action.indexOf('旧物回收') !== -1) hasRecycle = true;
-                if (App.carbon.records[i].action.indexOf('非高峰') !== -1) hasOffpeak = true;
-            }
-            if (hasRecycle) badges.push('♻️ 回收达人');
-            if (hasOffpeak) badges.push('⚡ 错峰侠');
-            if (badges.length === 0) badges.push('🌟 新绿会员');
-            var badgeHtml = '<div class="badge-list">';
-            for (var j = 0; j < badges.length; j++) {
-                badgeHtml += '<div class="badge"><i class="fas fa-medal"></i> ' + badges[j] + '</div>';
-            }
-            badgeHtml += '</div>';
-            memberContent.innerHTML = 
-                '<div class="member-card"><div class="avatar-large">🌿</div><h3>' + App.user.nickname + '</h3><p>纯电动汽车 · 绿卡会员</p></div>' +
-                '<div class="stats-grid">' +
-                '<div class="stat-item"><div class="stat-value">' + App.carbon.chargeCount + '</div><div>累计充电</div></div>' +
-                '<div class="stat-item"><div class="stat-value">' + App.carbon.totalEarned + '</div><div>累计碳积分</div></div>' +
-                '<div class="stat-item"><div class="stat-value">' + reduceVal + '</div><div>减排(kg)</div></div>' +
-                '</div>' + badgeHtml;
-        }
-
-        var carbonContent = document.getElementById('carbonContent');
-        if (carbonContent) {
-            if (!App.user.isJoinedPlan) {
-                carbonContent.innerHTML = '<div class="placeholder-card"><i class="fas fa-leaf" style="font-size:40px;"></i><p style="margin:16px 0">您尚未加入碳积分计划</p><button class="btn-outline" id="gotoHomeFromCarbon">去首页加入</button></div>';
-                var gotoBtn2 = document.getElementById('gotoHomeFromCarbon');
-                if (gotoBtn2) gotoBtn2.onclick = function() { showPage('home'); };
-                if (chart) { chart.dispose(); chart = null; }
-                return;
-            }
-            var recordsHtml = '';
-            var sorted = App.carbon.records.slice().reverse();
-            for (var k = 0; k < sorted.length; k++) {
-                var rec = sorted[k];
-                var color = rec.delta >= 0 ? '#166534' : '#c7362b';
-                var sign = rec.delta >= 0 ? '+' : '';
-                recordsHtml += '<div class="record-item"><div><strong>' + rec.action + '</strong><div style="font-size:11px">' + rec.time + '</div></div><span style="color:' + color + '; font-weight:bold">' + sign + rec.delta + '</span></div>';
-            }
-            carbonContent.innerHTML = 
-                '<div class="carbon-detail">' +
-                '<div class="points-card"><div><strong>当前积分</strong><div style="font-size:32px; font-weight:800;">' + App.carbon.currentPoints + '</div></div><div>累计获取: ' + App.carbon.totalEarned + '</div></div>' +
-                '<div id="detailChart" style="height:240px; width:100%; margin:8px 0;"></div>' +
-                '<div class="records-list">' + recordsHtml + '</div>' +
-                '<div class="action-selector">' +
-                '<select id="behaviorSelect"><option value="10">非高峰时段充电 (+10)</option><option value="5">选择电子发票 (+5)</option><option value="20">旧物回收 (+20)</option><option value="-10">超时占用车位 (-10)</option></select>' +
-                '<button class="btn-primary" id="executeBehaviorBtn">执行充电行为</button>' +
-                '<button class="btn-primary" id="exchangeDiscountBtn">兑换折扣</button>' +
-                '<button class="btn-primary" id="resetCarbonBtn">重置数据</button>' +
-                '</div>' +
-                '<div style="font-size:12px; background:#f5fbf8; padding:12px; border-radius:20px; margin-top:12px;">🌟 碳积分规则：100积分=1%充电折扣，最高20% | 决策树筛选敏感用户，低碳行为自动积分</div>' +
-                '</div>';
-            var chartDom = document.getElementById('detailChart');
-            if (chartDom) {
-                if (chart) chart.dispose();
-                chart = echarts.init(chartDom);
-                chart.setOption({
-                    tooltip: { trigger: 'axis' },
-                    legend: { data: ['累计积分', '充电次数'], left: 'left' },
-                    xAxis: { data: MONTHS },
-                    yAxis: [{ type: 'value', name: '累计积分' }, { type: 'value', name: '充电次数' }],
-                    series: [
-                        { name: '累计积分', type: 'line', data: App.carbon.monthlyPoints, smooth: true, lineStyle: { color: '#166534' } },
-                        { name: '充电次数', type: 'line', data: App.carbon.monthlyCharges, smooth: true, lineStyle: { color: '#f0a34b', type: 'dashed' } }
-                    ]
-                });
-            }
-        }
-    }
-
-    function addCarbonBehavior(delta, actionName, increaseCharge) {
-        if (!App.user.isJoinedPlan) { 
-            showToast('请先加入碳积分计划', 1000); 
-            return false; 
-        }
-        if (delta < 0 && App.carbon.currentPoints + delta < 0) {
-            showToast('积分不足，无法执行 ' + actionName, 1500);
-            return false;
-        }
-        App.carbon.currentPoints += delta;
-        if (delta > 0) App.carbon.totalEarned += delta;
-        var timeStr = getCurrentTime();
-        App.carbon.records.unshift({ time: timeStr, action: actionName, delta: delta });
-        if (App.carbon.records.length > 30) App.carbon.records.pop();
-        App.carbon.monthlyPoints[CURRENT_MONTH_IDX] = App.carbon.totalEarned;
-        if (increaseCharge !== false) {
-            App.carbon.monthlyCharges[CURRENT_MONTH_IDX] += 1;
-            App.carbon.chargeCount += 1;
-        }
-        refreshCarbonUI();
-        showToast(actionName + ' ' + (delta>=0?'+':'') + delta + '碳积分', 1200);
-        return true;
-    }
-
-    function exchangeDiscount() {
-        if (!App.user.isJoinedPlan) { showToast('请先加入碳积分计划', 1000); return; }
-        var points = App.carbon.currentPoints;
-        if (points < 100) { showToast('积分不足100，无法兑换折扣', 1500); return; }
-        var maxDiscount = Math.min(Math.floor(points / 100), 20);
-        var discountPercent = maxDiscount;
-        var fakeAmount = 50;
-        var discountMoney = fakeAmount * discountPercent / 100;
-        var finalMoney = fakeAmount - discountMoney;
-        if (confirm('当前积分 ' + points + '，可兑换 ' + discountPercent + '% 折扣（模拟充电50元，立减 ' + discountMoney.toFixed(2) + ' 元，实付 ' + finalMoney.toFixed(2) + ' 元）。确认兑换？')) {
-            var usePoints = discountPercent * 100;
-            App.carbon.currentPoints -= usePoints;
-            var timeStr = getCurrentTime();
-            App.carbon.records.unshift({ time: timeStr, action: '积分兑换折扣 (' + discountPercent + '%)', delta: -usePoints });
-            refreshCarbonUI();
-            showToast('成功兑换 ' + discountPercent + '% 折扣，扣除 ' + usePoints + ' 积分', 1800);
-        }
-    }
-
-    function resetCarbonData() {
-        if (!App.user.isJoinedPlan) return;
-        App.carbon.currentPoints = 10;
-        App.carbon.totalEarned = 10;
-        App.carbon.chargeCount = 0;
-        App.carbon.monthlyPoints = [0,0,0,0,0,10];
-        App.carbon.monthlyCharges = [0,0,0,0,0,0];
-        App.carbon.records = [{ time: getCurrentTime(), action: "首次加入碳积分计划", delta: 10 }];
-        refreshCarbonUI();
-        showToast('碳数据已重置（保留加入计划状态）', 1200);
-    }
-
-    function joinPlan() {
-        if (App.user.isJoinedPlan) return;
-        App.user.isJoinedPlan = true;
-        App.carbon.currentPoints = 10;
-        App.carbon.totalEarned = 10;
-        App.carbon.chargeCount = 0;
-        App.carbon.monthlyPoints = [0,0,0,0,0,10];
-        App.carbon.monthlyCharges = [0,0,0,0,0,0];
-        App.carbon.records = [{ time: getCurrentTime(), action: "首次加入碳积分计划", delta: 10 }];
-        var banner = document.getElementById('joinBanner');
-        if (banner) banner.style.display = 'none';
-        refreshCarbonUI();
-        showToast('已加入碳积分计划，赠送10碳积分！', 1500);
-    }
-
-    var pages = {
-        login: document.getElementById('loginPage'),
-        home: document.getElementById('homePage'),
-        member: document.getElementById('memberPage'),
-        carbon: document.getElementById('carbonPage')
+    
+    // 减排贡献映射（单位：kg）
+    var carbonReduction = {
+      charge: 0.5,
+      offpeak: 0.8,
+      invoice: 0.1,
+      recycle: 1.0,
+      green: 0.3,
+      activity: 0.5,
+      overtime: -0.2,
+      cancel: -0.3,
+      noshow: -0.2
     };
-    function showPage(pageName) {
-        for (var p in pages) pages[p].classList.remove('active-page');
-        pages[pageName].classList.add('active-page');
-        if (pageName === 'home') {
-            var banner = document.getElementById('joinBanner');
-            if (banner) banner.style.display = (App.isLoggedIn && !App.user.isJoinedPlan) ? 'flex' : 'none';
-            refreshCarbonUI();
-        }
-        if (pageName === 'member' || pageName === 'carbon') refreshCarbonUI();
-        var navs = document.querySelectorAll('.nav-item');
-        for (var i=0; i<navs.length; i++) navs[i].classList.remove('active');
-        if (pageName === 'home') {
-            var homeNav = document.querySelector('.nav-item[data-nav="home"]');
-            if (homeNav) homeNav.classList.add('active');
-        } else if (pageName === 'member') {
-            var memberNav = document.querySelector('.nav-item[data-nav="member"]');
-            if (memberNav) memberNav.classList.add('active');
-        } else if (pageName === 'carbon') {
-            var carbonNav = document.querySelector('.nav-item[data-nav="carbon"]');
-            if (carbonNav) carbonNav.classList.add('active');
-        }
+    
+    // 更新积分
+    appState.carbonPoints += pts;
+    updateAllPointsDisplays();
+    showPointsToast(pts);
+    
+    // 添加积分明细记录
+    var record = {
+      name: taskNames[taskId] || taskId,
+      time: formatDate(new Date()),
+      pts: (pts > 0 ? '+' : '') + pts,
+      type: pts > 0 ? 'plus' : 'minus'
+    };
+    appState.pointsDetails.unshift(record); // 添加到开头
+    renderPointsDetails(); // 重新渲染
+    
+    // 更新累计获取/消耗统计
+    updatePointsStats(pts);
+    
+    // 更新减排贡献
+    if (carbonReduction[taskId]) {
+      updateCarbonReduction(carbonReduction[taskId]);
+    }
+    
+    // 完成充电时，增加充电次数（仅"完成充电"任务）
+    if (taskId === 'charge') {
+      appState.chargeCount = (appState.chargeCount || 0) + 1;
+      var profileCharges = document.getElementById('profile-charges');
+      if (profileCharges) profileCharges.textContent = appState.chargeCount;
     }
 
-    function logout() {
-        App.isLoggedIn = false;
-        App.user = { nickname: '', isJoinedPlan: false };
-        App.carbon = { currentPoints:0, totalEarned:0, chargeCount:0, monthlyPoints:[0,0,0,0,0,0], monthlyCharges:[0,0,0,0,0,0], records:[] };
-        if (chart) { chart.dispose(); chart = null; }
-        showPage('login');
+    // 同步更新折线图
+    renderChart();
+  }
+  
+  // 更新积分统计
+  function updatePointsStats(pts) {
+    var statGet = document.getElementById('stat-total-get');
+    var statSpend = document.getElementById('stat-total-spend');
+    if (pts > 0 && statGet) {
+      var currentGet = parseInt(statGet.textContent.replace(/,/g, '')) || 0;
+      statGet.textContent = (currentGet + pts).toLocaleString();
+    } else if (pts < 0 && statSpend) {
+      var currentSpend = parseInt(statSpend.textContent.replace(/,/g, '')) || 0;
+      statSpend.textContent = (currentSpend + Math.abs(pts)).toLocaleString();
     }
+  }
+  
+  // 更新减排贡献（单位：kg）
+  function updateCarbonReduction(kg) {
+    var statCarbon = document.getElementById('stat-carbon');
+    if (!statCarbon) return;
+    
+    // 解析当前值（格式如 "2.8t" 或 "0"）
+    var currentText = statCarbon.textContent;
+    var currentKg = 0;
+    if (currentText.includes('t')) {
+      // 从吨转换为 kg
+      currentKg = parseFloat(currentText) * 1000;
+    } else {
+      currentKg = parseFloat(currentText) || 0;
+    }
+    
+    // 累加减排量
+    currentKg += kg;
+    
+    // 保持非负
+    if (currentKg < 0) currentKg = 0;
+    
+    // 格式化显示（>=1t 显示吨，否则显示kg）
+    if (currentKg >= 1000) {
+      statCarbon.textContent = (currentKg / 1000).toFixed(1) + 't';
+    } else {
+      statCarbon.textContent = currentKg.toFixed(1) + 'kg';
+    }
+  }
 
-    function initAuth() {
-        var loginTab = document.querySelector('[data-tab="login"]');
-        var regTab = document.querySelector('[data-tab="register"]');
-        var loginForm = document.getElementById('loginForm');
-        var regForm = document.getElementById('registerForm');
-        loginTab.onclick = function() { loginTab.classList.add('active'); regTab.classList.remove('active'); loginForm.style.display = 'block'; regForm.style.display = 'none'; };
-        regTab.onclick = function() { regTab.classList.add('active'); loginTab.classList.remove('active'); loginForm.style.display = 'none'; regForm.style.display = 'block'; };
-        
-        document.getElementById('doLoginBtn').onclick = function() {
-            var phone = document.getElementById('loginPhone').value.trim();
-            var code = document.getElementById('loginCode').value.trim();
-            if (!phone || !code) { showToast('请填写手机号和验证码', 1000); return; }
-            if (phone === '13812345678') {
-                App.isLoggedIn = true;
-                App.user = { nickname: OLD_USER_DATA.nickname, isJoinedPlan: OLD_USER_DATA.isJoinedPlan };
-                App.carbon = {
-                    currentPoints: OLD_USER_DATA.carbon.currentPoints,
-                    totalEarned: OLD_USER_DATA.carbon.totalEarned,
-                    chargeCount: OLD_USER_DATA.carbon.chargeCount,
-                    monthlyPoints: OLD_USER_DATA.carbon.monthlyPoints.slice(),
-                    monthlyCharges: OLD_USER_DATA.carbon.monthlyCharges.slice(),
-                    records: OLD_USER_DATA.carbon.records.slice()
-                };
-                showPage('home');
-                showToast('欢迎回来，张明', 1000);
-            } else { showToast('账号不存在，请先注册', 1500); }
-        };
-        
-        document.getElementById('doRegisterBtn').onclick = function() {
-            var nickname = document.getElementById('regNickname').value.trim();
-            var phone = document.getElementById('regPhone').value.trim();
-            var code = document.getElementById('regCode').value.trim();
-            if (!nickname || !phone || !code) { showToast('请填写完整信息', 1000); return; }
-            App.isLoggedIn = true;
-            App.user = { nickname: nickname, isJoinedPlan: false };
-            App.carbon = { currentPoints:0, totalEarned:0, chargeCount:0, monthlyPoints:[0,0,0,0,0,0], monthlyCharges:[0,0,0,0,0,0], records:[] };
-            showPage('home');
-            showToast('注册成功，已自动登录', 1000);
-        };
-    }
+  // 显示积分变动提示
+  function showPointsToast(pts) {
+    document.getElementById('toast-value').textContent = (pts > 0 ? '+' : '') + pts;
+    document.getElementById('toast-overlay').classList.add('show');
+  }
 
-    function bindCarbonDelegatedEvents() {
-        var carbonContent = document.getElementById('carbonContent');
-        if (!carbonContent) return;
-        carbonContent.addEventListener('click', function(e) {
-            var target = e.target;
-            if (target.id === 'executeBehaviorBtn') {
-                var select = document.getElementById('behaviorSelect');
-                if (select) {
-                    var delta = parseInt(select.value);
-                    var nameMap = { "10": "非高峰时段充电", "5": "选择电子发票", "20": "旧物回收", "-10": "超时占用车位" };
-                    addCarbonBehavior(delta, nameMap[String(delta)], true);
-                }
-            } else if (target.id === 'exchangeDiscountBtn') {
-                exchangeDiscount();
-            } else if (target.id === 'resetCarbonBtn') {
-                resetCarbonData();
-            }
-        });
-    }
+  // 关闭提示
+  function closeToast() {
+    document.getElementById('toast-overlay').classList.remove('show');
+  }
 
-    function bindHomeEvents() {
-        var joinBtn = document.getElementById('joinPlanBtn');
-        if (joinBtn) joinBtn.onclick = function() { joinPlan(); };
-        var logoutBtn = document.getElementById('logoutBtnHome');
-        if (logoutBtn) logoutBtn.onclick = function() { logout(); };
-        
-        // 底部导航扫码按钮（唯一充电入口）
-        var scanNav = document.querySelector('.nav-item[data-nav="scan"]');
-        if (scanNav) {
-            scanNav.onclick = function() {
-                if (!App.isLoggedIn) { showToast('请先登录', 1000); showPage('login'); return; }
-                if (!App.user.isJoinedPlan) { showToast('请先加入碳积分体验计划', 1000); return; }
-                var actions = [
-                    { name: "非高峰时段充电", delta: 10 },
-                    { name: "电子发票", delta: 5 },
-                    { name: "旧物回收", delta: 20 },
-                    { name: "超时占用车位", delta: -10 }
-                ];
-                var rand = actions[Math.floor(Math.random() * actions.length)];
-                addCarbonBehavior(rand.delta, rand.name, true);
-            };
-        }
-        
-        var navItems = document.querySelectorAll('.nav-item');
-        for (var i=0; i<navItems.length; i++) {
-            var nav = navItems[i];
-            var type = nav.getAttribute('data-nav');
-            if (type === 'home' || type === 'member' || type === 'carbon') {
-                nav.onclick = (function(t) { return function() { showPage(t); }; })(type);
-            } else if (type === 'save') {
-                nav.onclick = function() { showToast('省钱页面即将上线', 1000); };
-            }
-        }
-        var memberBack = document.getElementById('memberBackBtn');
-        if (memberBack) memberBack.onclick = function() { showPage('home'); };
-        var carbonBack = document.getElementById('carbonBackBtn');
-        if (carbonBack) carbonBack.onclick = function() { showPage('home'); };
+  // 折叠/展开规则
+  function toggleRules() {
+    var header = document.querySelector('.rules-header');
+    var body = document.getElementById('rules-body');
+    var toggle = document.querySelector('.rules-toggle');
+    
+    if (body.classList.contains('collapsed')) {
+      body.classList.remove('collapsed');
+      header.classList.add('collapsed');
+      toggle.innerHTML = '点击收起 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>';
+    } else {
+      body.classList.add('collapsed');
+      header.classList.remove('collapsed');
+      toggle.innerHTML = '点击展开 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>';
     }
-
-    function init() {
-        initAuth();
-        bindHomeEvents();
-        bindCarbonDelegatedEvents();
-        showPage('login');
-    }
-    init();
+  }
 </script>
 </body>
 </html>
